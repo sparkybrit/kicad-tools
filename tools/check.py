@@ -31,7 +31,12 @@ def library_pins(path):
             for p in find_all(sub, 'pin'):
                 units.setdefault(unit, []).append(
                     (str(find(p, 'number')[1]), str(find(p, 'name')[1]), str(p[1])))
-        out[name] = [units[u] for u in sorted(units)]
+        # Unit 0 holds pins common to every unit: fold them into each real unit.
+        common = units.pop(0, [])
+        if not units:
+            units[1] = []
+        out[name] = [sorted(common + units[u], key=lambda p: extract.pin_key(p[0]))
+                     for u in sorted(units)]
     return out
 
 

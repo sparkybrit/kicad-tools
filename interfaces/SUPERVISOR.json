@@ -1,0 +1,13 @@
+{
+  "module": "SUPERVISOR",
+  "repo": "https://github.com/sparkybrit/sparky1-modules",
+  "source": "KiCad stock Power_Supervisor:MCP130-xxxDxTO",
+  "commit": "KiCad 10.0.7",
+  "connectors": [
+    {"ref": "TO92", "pins": [
+      ["1", "~{RST}", "open_collector"],
+      ["2", "VDD", "power_in"],
+      ["3", "VSS", "power_in"]
+    ]}
+  ]
+}

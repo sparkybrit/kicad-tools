@@ -16,10 +16,25 @@ module's insides. The reasoning is in sparky1's `KICAD_MODULES.md`.
 | `sparky1_modules.kicad_sym` | The library, KiCad 10 format. **Generated - do not edit by hand** |
 | `modules.toml` | The modules: each one's repo, schematic and interface connectors |
 | `interfaces/<MODULE>.json` | Each module's connector pins as read from its own schematic, and the commit they came from |
-| `tools/extract.py` | Reads a module's interface from its repo: a board's from its schematic via `kicad-cli sch export netlist`, a PLD's from the `PIN` lines and equations of its `.pld` |
+| `tools/extract.py` | Reads a module's interface from its source (below) |
+| `sources/*.pins` | Hand-transcribed pin lists, each naming the document it came from |
 | `tools/build_lib.py` | Builds the library from `interfaces/` |
 | `tools/check.py` | Fails if the library is not what `build_lib.py` generates, or if a module's schematic no longer matches its interface file |
-| `tools/sexp.py` | S-expression reader and writer, from sparky1-backplane |
+| `tools/sexp.py`, `tools/symlib.py` | S-expression and symbol-library helpers, from sparky1-backplane |
+
+## Where each module's pins come from
+
+Each module in `modules.toml` names one source:
+
+| Key | Source | Checked against | Modules |
+|---|---|---|---|
+| `schematic` | the module's own KiCad schematic, through `kicad-cli sch export netlist` | that schematic | SRAM_ADAPTER, CPU_ADAPTER |
+| `pld` | the `PIN` lines of a `.pld`, with its equations deciding input or output | that `.pld` | BUSDECODER, SRAMMANAGER, CFMANAGER, BOOT, WATCHDOG |
+| `pins` | a pin list in `sources/`, transcribed from a datasheet or document | the file only | CF_ADAPTER, NVRAM_PROGRAMMER, NVRAM |
+| `stock` | a stock KiCad 10 symbol, flattened and renamed into this library | the installed KiCad library | DUART, OSCILLATOR, SUPERVISOR, REGULATOR |
+
+A `stock` module's interface records the KiCad version it was copied from; if a KiCad update changes the stock
+symbol, `make check` fails until it is re-extracted on purpose.
 
 ## Using it
 
@@ -47,8 +62,9 @@ is a pin with an equation), so ERC can check them; a board's signal pins are `pa
 ## Checking
 
 ```
-make check                                                            # library against interfaces/
-uv run --no-project python -I tools/check.py SRAM_ADAPTER ../sram-breadboard-adapter   # a module against its schematic
+make check                                     # library against interfaces/
+uv run --no-project python -I tools/check.py SRAM_ADAPTER ../sram-breadboard-adapter BUSDECODER ../sparky1 DUART .
+                                               # and each MODULE against its source
 ```
 
 Each difference is reported by connector and pin, and the exit status is 1. Run the second form in a module's

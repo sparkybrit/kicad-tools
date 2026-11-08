@@ -1,0 +1,42 @@
+{
+  "module": "NVRAM",
+  "repo": "https://github.com/sparkybrit/sparky1-modules",
+  "source": "sources/NVRAM.pins",
+  "commit": "bf548af",
+  "connectors": [
+    {"ref": "DIP32", "pins": [
+      ["1", "A18", "input"],
+      ["2", "A16", "input"],
+      ["3", "A14", "input"],
+      ["4", "A12", "input"],
+      ["5", "A7", "input"],
+      ["6", "A6", "input"],
+      ["7", "A5", "input"],
+      ["8", "A4", "input"],
+      ["9", "A3", "input"],
+      ["10", "A2", "input"],
+      ["11", "A1", "input"],
+      ["12", "A0", "input"],
+      ["13", "DQ0", "bidirectional"],
+      ["14", "DQ1", "bidirectional"],
+      ["15", "DQ2", "bidirectional"],
+      ["16", "GND", "power_in"],
+      ["17", "DQ3", "bidirectional"],
+      ["18", "DQ4", "bidirectional"],
+      ["19", "DQ5", "bidirectional"],
+      ["20", "DQ6", "bidirectional"],
+      ["21", "DQ7", "bidirectional"],
+      ["22", "~{CE}", "input"],
+      ["23", "A10", "input"],
+      ["24", "~{OE}", "input"],
+      ["25", "A11", "input"],
+      ["26", "A9", "input"],
+      ["27", "A8", "input"],
+      ["28", "A13", "input"],
+      ["29", "~{WE}", "input"],
+      ["30", "A17", "input"],
+      ["31", "A15", "input"],
+      ["32", "VCC", "power_in"]
+    ]}
+  ]
+}

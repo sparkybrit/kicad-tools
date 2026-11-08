@@ -110,6 +110,31 @@ def build_symbol(name, mod, iface):
     return sym
 
 
+def build_stock(name, mod, iface):
+    """A stock KiCad symbol, flattened and renamed to the module's name."""
+    from sexp import find_all
+    _, node = extract.stock_symbol(name, mod)
+    old = str(node[1])
+    out = [node[0], Str(name)]
+    for item in node[2:]:
+        if isinstance(item, list) and item and item[0] == 'symbol':
+            sub = list(item)
+            sub[1] = Str(str(item[1]).replace(old, name, 1))
+            out.append(sub)
+        elif isinstance(item, list) and item and item[0] == 'property':
+            key = str(item[1])
+            prop_ = list(item)
+            if key == 'Value' and 'value' in mod:
+                prop_[2] = Str(mod['value'])
+            elif key == 'Description':
+                prop_[2] = Str('%s Stock symbol %s, from %s.'
+                               % (mod['description'], mod['stock'], iface['commit']))
+            out.append(prop_)
+        else:
+            out.append(item)
+    return out
+
+
 def build():
     reg = extract.registry()
     syms = []
@@ -122,7 +147,10 @@ def build():
         if refs != reg[name]['connectors']:
             sys.exit('%s: interface has connectors %s, modules.toml says %s; re-extract'
                      % (name, refs, reg[name]['connectors']))
-        syms.append(build_symbol(name, reg[name], iface))
+        if 'stock' in reg[name]:
+            syms.append(build_stock(name, reg[name], iface))
+        else:
+            syms.append(build_symbol(name, reg[name], iface))
     root = ['kicad_symbol_lib',
             ['version', str(LIB_VERSION)],
             ['generator', Str('sparky1-modules/tools/build_lib.py')],

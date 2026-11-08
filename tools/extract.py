@@ -20,6 +20,7 @@ import tomllib
 import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
 ROOT = os.path.dirname(HERE)
 REGISTRY = os.path.join(ROOT, 'modules.toml')
 IFACE_DIR = os.path.join(ROOT, 'interfaces')
@@ -79,6 +80,11 @@ def read_netlist(schematic):
         for node in net.iter('node'):
             pins.setdefault(node.get('ref'), {})[node.get('pin')] = net.get('name')
     return pins, sheets
+
+
+def kicad_version():
+    r = subprocess.run(['kicad-cli', 'version'], capture_output=True, text=True)
+    return r.stdout.strip() or 'unknown'
 
 
 def git_commit(repo, path):
@@ -225,9 +231,38 @@ def connectors_from_pins(name, mod, repo):
     return mod['pins'], conns
 
 
+STOCK_DIR = os.environ.get('KICAD10_SYMBOL_DIR', '/usr/share/kicad/symbols')
+
+
+def stock_symbol(name, mod):
+    """The flattened stock KiCad symbol a 'stock' module is copied from."""
+    from symlib import Library
+    lib, sym = mod['stock'].split(':', 1)
+    path = os.path.join(STOCK_DIR, lib + '.kicad_sym')
+    if not os.path.exists(path):
+        sys.exit('%s: no stock library %s (set KICAD10_SYMBOL_DIR)' % (name, path))
+    library = Library(path)
+    if sym not in library.raw:
+        sys.exit('%s: %s has no symbol %s' % (name, path, sym))
+    return library, library.flatten(sym)
+
+
+def connectors_from_stock(name, mod, repo):
+    """A part drawn with a stock KiCad symbol: its pins as KiCad has them."""
+    from symlib import Symbol
+    library, node = stock_symbol(name, mod)
+    sym = Symbol(mod['stock'], node, library)
+    pins = sorted(([p.number, p.name, p.etype] for p in sym.pins), key=lambda p: pin_key(p[0]))
+    return 'KiCad stock ' + mod['stock'], [{'ref': mod['connectors'][0], 'pins': pins}]
+
+
 def extract(name, repo):
     """The interface of module `name`, read from the checkout at `repo`."""
     mod = module(name)
+    if 'stock' in mod:
+        source, connectors = connectors_from_stock(name, mod, repo)
+        return {'module': name, 'repo': mod['repo'], 'source': source,
+                'commit': 'KiCad ' + kicad_version(), 'connectors': connectors}
     if 'pins' in mod:
         source, connectors = connectors_from_pins(name, mod, repo)
     elif 'pld' in mod:

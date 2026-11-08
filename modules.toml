@@ -75,3 +75,39 @@ repo = "https://github.com/sparkybrit/nvram-programmer"
 pins = "sources/NVRAM_PROGRAMMER.pins"
 connectors = ["TEENSY"]
 names = { TEENSY = "nvram-programmer, Teensy++ 2.0" }
+
+[NVRAM]
+description = "Dallas DS1250Y-70 NVSRAM, 512K x 8: the boot image, at 0x01000000 (and 0 while /BOOT)"
+repo = "https://github.com/sparkybrit/sparky1-modules"
+pins = "sources/NVRAM.pins"
+connectors = ["DIP32"]
+reference = "U"
+names = { DIP32 = "DS1250Y-70" }
+
+[DUART]
+description = "Exar XR68C681 DUART (MC68681-compatible), 40-pin DIP: console, timer, interrupt at level 5"
+repo = "https://github.com/sparkybrit/sparky1-modules"
+stock = "Interface_UART:68C681"
+connectors = ["DIP40"]
+value = "XR68C681"
+
+[OSCILLATOR]
+description = "Raltron CO12100-16.000, 16 MHz half-size DIP-8 can: pin 1 NC, 4 GND, 5 OUT, 8 VCC"
+repo = "https://github.com/sparkybrit/sparky1-modules"
+stock = "Oscillator:CXO_DIP8"
+connectors = ["DIP8"]
+value = "CO12100-16.000"
+
+[SUPERVISOR]
+description = "Microchip MCP130-485DI/TO reset supervisor, TO-92 D bondout: /RST, VDD, VSS"
+repo = "https://github.com/sparkybrit/sparky1-modules"
+stock = "Power_Supervisor:MCP130-xxxDxTO"
+connectors = ["TO92"]
+value = "MCP130-485DI/TO"
+
+[REGULATOR]
+description = "XP Power SR10S05, 5 V 1 A switching regulator, LM78xx pin-compatible: 1 +Vin, 2 GND, 3 +Vout"
+repo = "https://github.com/sparkybrit/sparky1-modules"
+stock = "Regulator_Linear:L7805"
+connectors = ["SIP3"]
+value = "SR10S05"
