@@ -56,17 +56,9 @@ def shown_len(name):
     return len(name.replace('~{', '').replace('}', ''))
 
 
-def pin_type(name):
-    if name in extract.POWER:
-        return 'power_in'
-    if name == extract.NC:
-        return 'no_connect'
-    return 'passive'
-
-
 def geometry(ifaces):
     """Body half-width and half-height shared by every unit of one symbol."""
-    longest = max(shown_len(n) for c in ifaces['connectors'] for _, n in c['pins'])
+    longest = max(shown_len(p[1]) for c in ifaces['connectors'] for p in c['pins'])
     most = max(len(c['pins']) for c in ifaces['connectors'])
     half_w = snap_up(longest * CHAR_W + 2 * GRID)
     top = math.ceil((most - 1) / 2) * GRID
@@ -79,12 +71,12 @@ def build_symbol(name, mod, iface):
     bottom = top - (max(len(c['pins']) for c in iface['connectors']) - 1) * GRID
     body_bot = bottom - GRID
     descr = '%s Source: %s, %s at %s.' % (mod['description'], iface['repo'],
-                                          iface['schematic'], iface['commit'])
+                                          iface['source'], iface['commit'])
     sym = ['symbol', Str(name),
            ['pin_names', ['offset', '1.016']],
            ['exclude_from_sim', 'yes'], ['in_bom', 'no'], ['on_board', 'no'],
            ['in_pos_files', 'no'], ['duplicate_pin_numbers_are_jumpers', 'no'],
-           prop('Reference', 'A', -half_w, body_top + GRID, justify='left'),
+           prop('Reference', mod.get('reference', 'A'), -half_w, body_top + GRID, justify='left'),
            prop('Value', name, -half_w, body_bot - GRID, justify='left'),
            prop('Footprint', '', 0, 0, hide=True),
            prop('Datasheet', iface['repo'], 0, 0, hide=True),
@@ -105,10 +97,10 @@ def build_symbol(name, mod, iface):
                 ['text', Str(labels.get(conn['ref'], conn['ref'])),
                  ['at', '0', fmt(body_top - GRID), '0'],
                  ['effects', ['font', ['size', fmt(FONT), fmt(FONT)]]]]]
-        for i, (number, pname) in enumerate(conn['pins']):
+        for i, (number, pname, etype) in enumerate(conn['pins']):
             y = top - i * GRID
             body.append(
-                ['pin', pin_type(pname), 'line',
+                ['pin', etype, 'line',
                  ['at', fmt(-half_w - PIN_LEN), fmt(y), '0'],
                  ['length', fmt(PIN_LEN)],
                  ['name', Str(pname), ['effects', ['font', ['size', fmt(FONT), fmt(FONT)]]]],

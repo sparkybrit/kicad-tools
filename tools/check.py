@@ -20,7 +20,7 @@ import build_lib
 
 
 def library_pins(path):
-    """{symbol: [[(number, name), ...] per unit]} read back from a .kicad_sym."""
+    """{symbol: [[(number, name, type), ...] per unit]} read back from a .kicad_sym."""
     root = parse(open(path).read())[0]
     out = {}
     for sym in find_all(root, 'symbol'):
@@ -30,24 +30,27 @@ def library_pins(path):
             unit = int(str(sub[1]).rsplit('_', 2)[-2])
             for p in find_all(sub, 'pin'):
                 units.setdefault(unit, []).append(
-                    (str(find(p, 'number')[1]), str(find(p, 'name')[1])))
+                    (str(find(p, 'number')[1]), str(find(p, 'name')[1]), str(p[1])))
         out[name] = [units[u] for u in sorted(units)]
     return out
 
 
 def compare(what, want, got):
-    """Pin-by-pin differences between two [(ref, [(number, name)])] lists."""
+    """Pin-by-pin differences between two [(ref, [(number, name, type)])] lists."""
     errs = []
     want_refs = [r for r, _ in want]
     got_refs = [r for r, _ in got]
     if want_refs != got_refs:
         errs.append('%s: connectors %s, expected %s' % (what, got_refs, want_refs))
     for (ref, wp), (_, gp) in zip(want, got):
-        w, g = dict(wp), dict(gp)
+        w = {p[0]: p[1:] for p in wp}
+        g = {p[0]: p[1:] for p in gp}
+        show = lambda v: '%s (%s)' % v if v else None
         for num in sorted(set(w) | set(g), key=extract.pin_key):
             if w.get(num) != g.get(num):
                 errs.append('%s: %s pin %s is %s, expected %s'
-                            % (what, ref, num, g.get(num, '(missing)'), w.get(num, '(absent)')))
+                            % (what, ref, num, show(g.get(num)) or '(missing)',
+                               show(w.get(num)) or '(absent)'))
     return errs
 
 
@@ -85,7 +88,7 @@ def check_library():
 def check_module(name, repo):
     iface = extract.load(name)
     fresh = extract.extract(name, repo)
-    errs = compare('%s (%s at %s)' % (name, fresh['schematic'], fresh['commit']),
+    errs = compare('%s (%s at %s)' % (name, fresh['source'], fresh['commit']),
                    as_pairs(iface), as_pairs(fresh))
     note = None
     if not errs and fresh['commit'] != iface['commit']:
