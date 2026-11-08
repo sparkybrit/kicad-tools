@@ -31,7 +31,7 @@ Each module in `modules.toml` names one source:
 | `schematic` | the module's own KiCad schematic, through `kicad-cli sch export netlist` | that schematic | SRAM_ADAPTER, CPU_ADAPTER |
 | `pld` | the `PIN` lines of a `.pld`, with its equations deciding input or output | that `.pld` | BUSDECODER, SRAMMANAGER, CFMANAGER, BOOT, WATCHDOG |
 | `label` | the part's label in [ic-label-generator](https://github.com/sparkybrit/ic-label-generator) (`defs/*.json`), the one it is wired by: names, pin numbers, and input or output from the label's lists | that label | CF_ADAPTER, DUART |
-| `pins` | a pin list in `sources/`, transcribed from a datasheet or document | the file only | NVRAM_PROGRAMMER, NVRAM |
+| `pins` | a pin list in `sources/`, transcribed from a datasheet or document | the file only | NVRAM_PROGRAMMER, NVRAM, RESISTOR_ADAPTER_8 |
 | `stock` | a stock KiCad 10 symbol, flattened and renamed into this library | the installed KiCad library | OSCILLATOR, SUPERVISOR, REGULATOR |
 
 A `stock` module's interface records the KiCad version it was copied from; if a KiCad update changes the stock

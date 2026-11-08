@@ -1,0 +1,26 @@
+{
+  "module": "RESISTOR_ADAPTER_8",
+  "repo": "https://github.com/sparkybrit/sparky1-modules",
+  "source": "sources/RESISTOR_ADAPTER_8.pins",
+  "commit": "8102395",
+  "connectors": [
+    {"ref": "DIP16", "pins": [
+      ["1", "R1a", "passive"],
+      ["2", "R2a", "passive"],
+      ["3", "R3a", "passive"],
+      ["4", "R4a", "passive"],
+      ["5", "R5a", "passive"],
+      ["6", "R6a", "passive"],
+      ["7", "R7a", "passive"],
+      ["8", "R8a", "passive"],
+      ["9", "R8b", "passive"],
+      ["10", "R7b", "passive"],
+      ["11", "R6b", "passive"],
+      ["12", "R5b", "passive"],
+      ["13", "R4b", "passive"],
+      ["14", "R3b", "passive"],
+      ["15", "R2b", "passive"],
+      ["16", "R1b", "passive"]
+    ]}
+  ]
+}

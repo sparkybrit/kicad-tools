@@ -111,3 +111,11 @@ repo = "https://github.com/sparkybrit/sparky1-modules"
 stock = "Regulator_Linear:L7805"
 connectors = ["SIP3"]
 value = "SR10S05"
+
+[RESISTOR_ADAPTER_8]
+description = "Eight resistors on a 16-pin DIP adapter, resistor k from pin k (Rka) to pin 17-k (Rkb). Two fitted: 33 ohm series resistors on the CF data lines"
+repo = "https://github.com/sparkybrit/sparky1-modules"
+pins = "sources/RESISTOR_ADAPTER_8.pins"
+connectors = ["DIP16"]
+reference = "RN"
+names = { DIP16 = "8 x R, DIP-16" }
