@@ -68,3 +68,10 @@ repo = "https://github.com/sparkybrit/sparky1-modules"
 pins = "sources/CF_ADAPTER.pins"
 connectors = ["CF"]
 names = { CF = "CompactFlash, True IDE" }
+
+[NVRAM_PROGRAMMER]
+description = "In-circuit NVRAM programmer, Teensy++ 2.0: takes the bus with /BR, /BG, /BGACK and writes the DS1250. Pins numbered by Teensy port name"
+repo = "https://github.com/sparkybrit/nvram-programmer"
+pins = "sources/NVRAM_PROGRAMMER.pins"
+connectors = ["TEENSY"]
+names = { TEENSY = "nvram-programmer, Teensy++ 2.0" }
