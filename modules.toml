@@ -90,26 +90,12 @@ label = "defs/xp68c681-breadboard-adapter.json"
 connectors = ["PLCC44"]
 names = { PLCC44 = "XR68C681, PLCC-44" }
 
-[OSCILLATOR]
-description = "Raltron CO12100-16.000, 16 MHz half-size DIP-8 can: pin 1 NC, 4 GND, 5 OUT, 8 VCC"
+[POWER_CLOCK]
+description = "Perfboard power and clock module: 12 V barrel jack, power switch, SR10S05 5 V regulator, CO12100-16.000 16 MHz oscillator, MCP130-485 reset supervisor, reset button, power LED"
 repo = "https://github.com/sparkybrit/sparky1-modules"
-stock = "Oscillator:CXO_DIP8"
-connectors = ["DIP8"]
-value = "CO12100-16.000"
-
-[SUPERVISOR]
-description = "Microchip MCP130-485DI/TO reset supervisor, TO-92 D bondout: /RST, VDD, VSS"
-repo = "https://github.com/sparkybrit/sparky1-modules"
-stock = "Power_Supervisor:MCP130-xxxDxTO"
-connectors = ["TO92"]
-value = "MCP130-485DI/TO"
-
-[REGULATOR]
-description = "XP Power SR10S05, 5 V 1 A switching regulator, LM78xx pin-compatible: 1 +Vin, 2 GND, 3 +Vout"
-repo = "https://github.com/sparkybrit/sparky1-modules"
-stock = "Regulator_Linear:L7805"
-connectors = ["SIP3"]
-value = "SR10S05"
+pins = "sources/POWER_CLOCK.pins"
+connectors = ["BB", "JACK"]
+names = { BB = "breadboard pins", JACK = "12 V barrel jack" }
 
 [RESISTOR_ADAPTER_8]
 description = "Eight resistors on a 16-pin DIP adapter, resistor k from pin k (Rka) to pin 17-k (Rkb). Two fitted: 33 ohm series resistors on the CF data lines"
