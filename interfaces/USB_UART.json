@@ -1,0 +1,18 @@
+{
+  "module": "USB_UART",
+  "repo": "https://github.com/sparkybrit/sparky1-modules",
+  "source": "sources/USB_UART.pins",
+  "commit": "49d80b1",
+  "connectors": [
+    {"ref": "UB232R", "pins": [
+      ["1", "GND", "power_in"],
+      ["2", "VCC", "power_out"],
+      ["3", "~{CTS}", "input"],
+      ["4", "~{RTS}", "output"],
+      ["5", "CBUS1", "bidirectional"],
+      ["6", "CBUS0", "bidirectional"],
+      ["7", "RXD", "input"],
+      ["8", "TXD", "output"]
+    ]}
+  ]
+}
