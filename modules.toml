@@ -14,3 +14,10 @@ repo = "https://github.com/sparkybrit/sram-breadboard-adapter"
 schematic = "sram-breadboard-adaptor.kicad_sch"
 connectors = ["J0", "J1"]
 names = { J0 = "J0 address, control", J1 = "J1 data" }
+
+[CPU_ADAPTER]
+description = "MC68030 PGA-to-breadboard adapter, v1.0. J1 address, J2 data, J3 and J4 control (bus arbitration, sizing, cache, interrupts)"
+repo = "https://github.com/sparkybrit/68030-breadboard-adapter"
+schematic = "68030-breadboard.kicad_sch"
+connectors = ["J1", "J2", "J3", "J4"]
+names = { J1 = "J1 address", J2 = "J2 data", J3 = "J3 control", J4 = "J4 control" }

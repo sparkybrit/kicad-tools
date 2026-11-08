@@ -94,10 +94,12 @@ def build_symbol(name, mod, iface):
            ]
     labels = mod.get('names', {})
     for unit, conn in enumerate(iface['connectors'], start=1):
+        # Every unit shares the top edge; each ends a grid step below its own last pin.
+        unit_bot = top - (len(conn['pins']) - 1) * GRID - GRID
         body = ['symbol', Str('%s_%d_1' % (name, unit)),
                 ['rectangle',
                  ['start', fmt(-half_w), fmt(body_top)],
-                 ['end', fmt(half_w), fmt(body_bot)],
+                 ['end', fmt(half_w), fmt(unit_bot)],
                  ['stroke', ['width', '0.254'], ['type', 'default']],
                  ['fill', ['type', 'background']]],
                 ['text', Str(labels.get(conn['ref'], conn['ref'])),
