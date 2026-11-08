@@ -182,10 +182,55 @@ def connectors_from_pld(name, mod, repo):
     return mod['pld'], [{'ref': mod['connectors'][0], 'pins': pins}]
 
 
+TYPES = {'input', 'output', 'bidirectional', 'tri_state', 'passive', 'free', 'unspecified',
+         'power_in', 'power_out', 'open_collector', 'open_emitter', 'no_connect'}
+
+
+def connectors_from_pins(name, mod, repo):
+    """A hand-transcribed pin list, for a module with no KiCad project or .pld.
+
+    One pin per line, 'number name type'; '#' starts a comment, and the file's
+    header must say which datasheet or document it was transcribed from.
+    A line '[REF]' starts the next connector; without one, the file is one
+    connector named by modules.toml.
+    """
+    path = os.path.join(repo, mod['pins'])
+    if not os.path.exists(path):
+        sys.exit('%s: no pin file %s' % (name, path))
+    conns, cur = [], None
+    for lineno, line in enumerate(open(path), 1):
+        line = line.split('#', 1)[0].strip()
+        if not line:
+            continue
+        if line.startswith('['):
+            cur = {'ref': line.strip('[]'), 'pins': []}
+            conns.append(cur)
+            continue
+        f = line.split()
+        if len(f) != 3 or f[2] not in TYPES:
+            sys.exit('%s:%d: want "number name type", type one of %s'
+                     % (path, lineno, ', '.join(sorted(TYPES))))
+        if cur is None:
+            cur = {'ref': mod['connectors'][0], 'pins': []}
+            conns.append(cur)
+        cur['pins'].append(f)
+    refs = [c['ref'] for c in conns]
+    if refs != mod['connectors']:
+        sys.exit('%s: %s has connectors %s, modules.toml says %s'
+                 % (name, path, refs, mod['connectors']))
+    for c in conns:
+        nums = [p[0] for p in c['pins']]
+        if len(set(nums)) != len(nums):
+            sys.exit('%s: %s has a pin number twice in %s' % (name, path, c['ref']))
+    return mod['pins'], conns
+
+
 def extract(name, repo):
     """The interface of module `name`, read from the checkout at `repo`."""
     mod = module(name)
-    if 'pld' in mod:
+    if 'pins' in mod:
+        source, connectors = connectors_from_pins(name, mod, repo)
+    elif 'pld' in mod:
         source, connectors = connectors_from_pld(name, mod, repo)
     else:
         source, connectors = connectors_from_schematic(name, mod, repo)
