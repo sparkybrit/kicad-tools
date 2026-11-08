@@ -1,0 +1,16 @@
+# The Sparky1 modules, one table each. The table name is the symbol name in
+# sparky1_modules.kicad_sym and the stem of its file in interfaces/.
+#
+#   description  one line, copied into the symbol's Description
+#   repo         where the module's own KiCad project lives
+#   schematic    its top-level schematic, relative to that repo's root
+#   connectors   the references of the connectors that make up its interface,
+#                in unit order (unit A is the first)
+#   names        optional {connector = text} shown inside each unit
+
+[SRAM_ADAPTER]
+description = "8 MB SRAM breadboard adapter: eight LY62W10248 (1M x 8) in two banks of four. J0 address and control, J1 data"
+repo = "https://github.com/sparkybrit/sram-breadboard-adaptor"
+schematic = "sram-breadboard-adaptor.kicad_sch"
+connectors = ["J0", "J1"]
+names = { J0 = "J0 address, control", J1 = "J1 data" }
