@@ -1,6 +1,6 @@
 {
   "module": "ROM_RAM_ADAPTER",
-  "repo": "https://github.com/sparkybrit/flash-breadboard-adaptor",
+  "repo": "https://github.com/sparkybrit/rom-ram-breadboard-adapter",
   "source": "flash-breadboard-adaptor.kicad_sch",
   "commit": "a98cf92",
   "connectors": [
