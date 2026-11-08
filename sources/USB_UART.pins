@@ -1,0 +1,18 @@
+# USB_UART: the console, an FTDI UB232R (FT232RQ) USB-to-UART module, /dev/ttyUSB0 (0403:6001).
+# Datasheet: datasheets/FTDI UB232R USB UART Breadboard Adapter. Numbered by its silkscreen,
+# 1-8 (J1-1..J1-4, then J2-4..J2-1): Table 3.1.
+# VCC is USB's 5 V. On this board it feeds only a resistor and LED, never the board's rail
+# (Graeme, 2026-11-08), so it is power_out on a net of its own. GND is power_in: the module
+# shares the board's ground. CBUS0/CBUS1 are FT232R CBUS pins (TXLED#/RXLED# by default in its
+# EEPROM); bidirectional, since what they are programmed to be is not recorded.
+# The VCCIO link (J3: 5 V or 3.3 V I/O) is not an interface pin; which way it is set is to
+# confirm (KICAD_MODULES.md, step 5).
+[UB232R]
+1  GND        power_in
+2  VCC        power_out
+3  ~{CTS}     input
+4  ~{RTS}     output
+5  CBUS1      bidirectional
+6  CBUS0      bidirectional
+7  RXD        input
+8  TXD        output

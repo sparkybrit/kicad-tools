@@ -104,3 +104,10 @@ pins = "sources/RESISTOR_ADAPTER_8.pins"
 connectors = ["DIP16"]
 reference = "RN"
 names = { DIP16 = "8 x R, DIP-16" }
+
+[USB_UART]
+description = "Console: FTDI UB232R USB-to-UART module (FT232RQ), /dev/ttyUSB0. Pins numbered by its silkscreen; VCC (USB 5 V) feeds only an LED, not the board's rail"
+repo = "https://github.com/sparkybrit/sparky1-modules"
+pins = "sources/USB_UART.pins"
+connectors = ["UB232R"]
+names = { UB232R = "UB232R, USB-UART" }
