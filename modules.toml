@@ -76,13 +76,12 @@ pins = "sources/NVRAM_PROGRAMMER.pins"
 connectors = ["TEENSY"]
 names = { TEENSY = "nvram-programmer, Teensy++ 2.0" }
 
-[NVRAM]
-description = "Dallas DS1250Y-70 NVSRAM, 512K x 8: the boot image, at 0x01000000 (and 0 while /BOOT)"
-repo = "https://github.com/sparkybrit/sparky1-modules"
-pins = "sources/NVRAM.pins"
-connectors = ["DIP32"]
-reference = "U"
-names = { DIP32 = "DS1250Y-70" }
+[ROM_RAM_ADAPTER]
+description = "ROM/RAM breadboard adapter: the DS1250Y-70 NVRAM sits in U1, the wide 32-pin socket drawn for an SST39SF040 flash; U2 (CY7C199, narrow DIP-28) is not fitted. Pin names are the board's, for the flash: U1 pin 29, the DS1250's /WE, is J1's A14, and pin 31, its A15, is J2's ROMWE (A14/A15 also swap on pin 3)"
+repo = "https://github.com/sparkybrit/flash-breadboard-adaptor"
+schematic = "flash-breadboard-adaptor.kicad_sch"
+connectors = ["J1", "J2"]
+names = { J1 = "J1 address", J2 = "J2 data, control" }
 
 [DUART]
 description = "Exar XR68C681 DUART (MC68681-compatible), 44-pin PLCC on a 44-pin breadboard adapter numbered as the PLCC: console, timer, interrupt at level 5"
