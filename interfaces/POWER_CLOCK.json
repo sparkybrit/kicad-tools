@@ -1,0 +1,18 @@
+{
+  "module": "POWER_CLOCK",
+  "repo": "https://github.com/sparkybrit/sparky1-modules",
+  "source": "sources/POWER_CLOCK.pins",
+  "commit": "56c7d3c",
+  "connectors": [
+    {"ref": "BB", "pins": [
+      ["1", "GND", "power_out"],
+      ["2", "+5V", "power_out"],
+      ["3", "~{RESET}", "open_collector"],
+      ["4", "CLK", "output"]
+    ]},
+    {"ref": "JACK", "pins": [
+      ["1", "+12V", "passive"],
+      ["2", "GND", "passive"]
+    ]}
+  ]
+}
