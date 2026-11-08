@@ -5,7 +5,10 @@ KiCad interface symbols for the modules that make up
 
 Each module - a breadboard adapter, a PLD, a bought-in board - is one symbol, with one unit per connector
 (a PLD's one "connector" is its own pins).
-A pin's **number** is the connector pin and its **name** is the module's own signal name. The system
+A pin's **number** is the connector pin and its **name** is the module's own signal name. On a module
+with several connectors the number is `CONN.N` (`J1.8`): KiCad takes pins with the same number on
+different units to be one pin, and would join J1 pin 1 to J2 pin 1. The interface files keep the bare
+number. The system
 schematic in `sparky1` places these symbols and draws only the wiring between them; it never redraws a
 module's insides. The reasoning is in sparky1's `KICAD_MODULES.md`.
 

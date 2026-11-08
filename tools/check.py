@@ -29,8 +29,10 @@ def library_pins(path):
         for sub in find_all(sym, 'symbol'):
             unit = int(str(sub[1]).rsplit('_', 2)[-2])
             for p in find_all(sub, 'pin'):
+                # A module with several connectors numbers its pins CONN.N.
+                number = str(find(p, 'number')[1]).split('.', 1)[-1]
                 units.setdefault(unit, []).append(
-                    (str(find(p, 'number')[1]), str(find(p, 'name')[1]), str(p[1])))
+                    (number, str(find(p, 'name')[1]), str(p[1])))
         # Unit 0 holds pins common to every unit: fold them into each real unit.
         common = units.pop(0, [])
         if not units:

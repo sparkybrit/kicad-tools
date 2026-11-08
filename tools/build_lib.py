@@ -3,7 +3,7 @@
     uv run tools/build_lib.py
 
 One symbol per module, one unit per connector. Each pin's number is the
-connector pin and its name is the module's own signal name, so the system
+connector pin (CONN.N, such as J1.8, when the module has several connectors) and its name is the module's own signal name, so the system
 schematic wires modules together exactly as the breadboard does. The library
 is generated: edit modules.toml or re-extract an interface, never the
 .kicad_sym by hand.
@@ -85,6 +85,9 @@ def build_symbol(name, mod, iface):
            prop('ki_keywords', 'sparky1 module interface', 0, 0, hide=True),
            ]
     labels = mod.get('names', {})
+    # KiCad takes pins with the same number on different units to be one pin, so
+    # a module with several connectors numbers each pin CONN.N (J1.8).
+    multi = len(iface['connectors']) > 1
     for unit, conn in enumerate(iface['connectors'], start=1):
         # Every unit shares the top edge; each ends a grid step below its own last pin.
         unit_bot = top - (len(conn['pins']) - 1) * GRID - GRID
@@ -98,6 +101,8 @@ def build_symbol(name, mod, iface):
                  ['at', '0', fmt(body_top - GRID), '0'],
                  ['effects', ['font', ['size', fmt(FONT), fmt(FONT)]]]]]
         for i, (number, pname, etype) in enumerate(conn['pins']):
+            if multi:
+                number = '%s.%s' % (conn['ref'], number)
             y = top - i * GRID
             body.append(
                 ['pin', etype, 'line',
