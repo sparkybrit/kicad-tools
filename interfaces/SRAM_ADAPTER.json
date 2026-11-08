@@ -1,6 +1,6 @@
 {
   "module": "SRAM_ADAPTER",
-  "repo": "https://github.com/sparkybrit/sram-breadboard-adaptor",
+  "repo": "https://github.com/sparkybrit/sram-breadboard-adapter",
   "schematic": "sram-breadboard-adaptor.kicad_sch",
   "commit": "4a06509",
   "connectors": [

@@ -10,7 +10,7 @@
 
 [SRAM_ADAPTER]
 description = "8 MB SRAM breadboard adapter: eight LY62W10248 (1M x 8) in two banks of four. J0 address and control, J1 data"
-repo = "https://github.com/sparkybrit/sram-breadboard-adaptor"
+repo = "https://github.com/sparkybrit/sram-breadboard-adapter"
 schematic = "sram-breadboard-adaptor.kicad_sch"
 connectors = ["J0", "J1"]
 names = { J0 = "J0 address, control", J1 = "J1 data" }

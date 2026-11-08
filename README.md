@@ -45,7 +45,7 @@ pin is `NC`.
 
 ```
 make check                                                            # library against interfaces/
-uv run --no-project python -I tools/check.py SRAM_ADAPTER ../sram-breadboard-adaptor   # a module against its schematic
+uv run --no-project python -I tools/check.py SRAM_ADAPTER ../sram-breadboard-adapter   # a module against its schematic
 ```
 
 Each difference is reported by connector and pin, and the exit status is 1. Run the second form in a module's

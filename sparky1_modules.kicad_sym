@@ -44,7 +44,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://github.com/sparkybrit/sram-breadboard-adaptor"
+		(property "Datasheet" "https://github.com/sparkybrit/sram-breadboard-adapter"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -55,7 +55,7 @@
 				)
 			)
 		)
-		(property "Description" "8 MB SRAM breadboard adapter: eight LY62W10248 (1M x 8) in two banks of four. J0 address and control, J1 data Source: https://github.com/sparkybrit/sram-breadboard-adaptor, sram-breadboard-adaptor.kicad_sch at 4a06509."
+		(property "Description" "8 MB SRAM breadboard adapter: eight LY62W10248 (1M x 8) in two banks of four. J0 address and control, J1 data Source: https://github.com/sparkybrit/sram-breadboard-adapter, sram-breadboard-adaptor.kicad_sch at 4a06509."
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
