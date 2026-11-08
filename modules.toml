@@ -61,3 +61,10 @@ pld = "plds/watchdog/watchdog.pld"
 connectors = ["DIP20"]
 names = { DIP20 = "watchdog, 16V8" }
 reference = "U"
+
+[CF_ADAPTER]
+description = "50-pin CompactFlash breadboard adapter (bought in), the card in True IDE mode. Pins numbered as the CF connector's"
+repo = "https://github.com/sparkybrit/sparky1-modules"
+pins = "sources/CF_ADAPTER.pins"
+connectors = ["CF"]
+names = { CF = "CompactFlash, True IDE" }
