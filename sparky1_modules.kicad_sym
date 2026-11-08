@@ -7131,7 +7131,7 @@
 				)
 			)
 		)
-		(property "Description" "ROM/RAM breadboard adapter: the DS1250Y-70 NVRAM sits in U1, the wide 32-pin socket drawn for an SST39SF040 flash; U2 (CY7C199, narrow DIP-28) is not fitted. Pin names are the board's, for the flash: U1 pin 29, the DS1250's /WE, is J1's A14, and pin 31, its A15, is J2's ROMWE (A14/A15 also swap on pin 3) Source: https://github.com/sparkybrit/rom-ram-breadboard-adapter, flash-breadboard-adaptor.kicad_sch at a98cf92."
+		(property "Description" "ROM/RAM breadboard adapter: the DS1250AB-70 NVRAM sits in U1, the wide 32-pin socket drawn for an SST39SF040 flash; U2 (CY7C199, narrow DIP-28) is not fitted. Pin names are the board's, for the flash: U1 pin 29, the DS1250's /WE, is J1's A14, and pin 31, its A15, is J2's ROMWE (A14/A15 also swap on pin 3) Source: https://github.com/sparkybrit/rom-ram-breadboard-adapter, flash-breadboard-adaptor.kicad_sch at a98cf92."
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
