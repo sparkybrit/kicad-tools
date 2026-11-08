@@ -3,7 +3,8 @@
 KiCad interface symbols for the modules that make up
 [Sparky1](https://github.com/sparkybrit/sparky1), the MC68030 breadboard computer.
 
-Each module - a breadboard adapter, a PLD, a bought-in board - is one symbol, with one unit per connector.
+Each module - a breadboard adapter, a PLD, a bought-in board - is one symbol, with one unit per connector
+(a PLD's one "connector" is its own pins).
 A pin's **number** is the connector pin and its **name** is the module's own signal name. The system
 schematic in `sparky1` places these symbols and draws only the wiring between them; it never redraws a
 module's insides. The reasoning is in sparky1's `KICAD_MODULES.md`.
@@ -15,7 +16,7 @@ module's insides. The reasoning is in sparky1's `KICAD_MODULES.md`.
 | `sparky1_modules.kicad_sym` | The library, KiCad 10 format. **Generated - do not edit by hand** |
 | `modules.toml` | The modules: each one's repo, schematic and interface connectors |
 | `interfaces/<MODULE>.json` | Each module's connector pins as read from its own schematic, and the commit they came from |
-| `tools/extract.py` | Reads a module's interface from its repo, via `kicad-cli sch export netlist` |
+| `tools/extract.py` | Reads a module's interface from its repo: a board's from its schematic via `kicad-cli sch export netlist`, a PLD's from the `PIN` lines and equations of its `.pld` |
 | `tools/build_lib.py` | Builds the library from `interfaces/` |
 | `tools/check.py` | Fails if the library is not what `build_lib.py` generates, or if a module's schematic no longer matches its interface file |
 | `tools/sexp.py` | S-expression reader and writer, from sparky1-backplane |
@@ -39,7 +40,9 @@ make
 
 Commit the new `interfaces/MODULE.json` and library together. Names are cleaned on the way in: the sheet
 path goes, an overbar left unclosed in the source is closed (`~{BR` becomes `~{BR}`), and an unconnected
-pin is `NC`.
+pin is `NC`. A PLD's undeclared pins follow sparky1's chip-diagram convention: an unused input-only pin is
+`IN<n>` (tied low on the board), an unused macrocell pin `NC`. Its pins are typed `input` or `output` (an output
+is a pin with an equation), so ERC can check them; a board's signal pins are `passive`.
 
 ## Checking
 

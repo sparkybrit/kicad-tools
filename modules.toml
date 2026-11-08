@@ -21,3 +21,43 @@ repo = "https://github.com/sparkybrit/68030-breadboard-adapter"
 schematic = "68030-breadboard.kicad_sch"
 connectors = ["J1", "J2", "J3", "J4"]
 names = { J1 = "J1 address", J2 = "J2 data", J3 = "J3 control", J4 = "J4 control" }
+
+[BUSDECODER]
+description = "busdecoder, ATF22V10C: address decode, chip selects, /CIIN, /IACK, /DSACK0 and /DSACK1"
+repo = "https://github.com/sparkybrit/sparky1"
+pld = "plds/busdecoder/busdecoder.pld"
+connectors = ["DIP24"]
+names = { DIP24 = "busdecoder, 22V10" }
+reference = "U"
+
+[SRAMMANAGER]
+description = "srammanager, ATF22V10C: the eight SRAM chip selects /CSA0-/CSB3, from /SRAMCS, A22, A1, A0, SIZ1, SIZ0, R/W and /DS"
+repo = "https://github.com/sparkybrit/sparky1"
+pld = "plds/srammanager/srammanager.pld"
+connectors = ["DIP24"]
+names = { DIP24 = "srammanager, 22V10" }
+reference = "U"
+
+[CFMANAGER]
+description = "cfmanager, ATF22V10C: CompactFlash wait states, /IORD and /IOWR, its /DSACK0 and /DSACK1, and -CS1"
+repo = "https://github.com/sparkybrit/sparky1"
+pld = "plds/cfmanager/cfmanager.pld"
+connectors = ["DIP24"]
+names = { DIP24 = "cfmanager, 22V10" }
+reference = "U"
+
+[BOOT]
+description = "boot, ATF16V8C: /BOOT through /RESET and the first 8 completed bus cycles after it"
+repo = "https://github.com/sparkybrit/sparky1"
+pld = "plds/boot/boot.pld"
+connectors = ["DIP20"]
+names = { DIP20 = "boot, 16V8" }
+reference = "U"
+
+[WATCHDOG]
+description = "watchdog, ATF16V8C-7: /BERR 64 clocks into a bus cycle nothing has answered"
+repo = "https://github.com/sparkybrit/sparky1"
+pld = "plds/watchdog/watchdog.pld"
+connectors = ["DIP20"]
+names = { DIP20 = "watchdog, 16V8" }
+reference = "U"

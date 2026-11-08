@@ -1,0 +1,30 @@
+{
+  "module": "BOOT",
+  "repo": "https://github.com/sparkybrit/sparky1",
+  "source": "plds/boot/boot.pld",
+  "commit": "0ba4e00",
+  "connectors": [
+    {"ref": "DIP20", "pins": [
+      ["1", "CLK", "input"],
+      ["2", "~{AS}", "input"],
+      ["3", "~{RESET}", "input"],
+      ["4", "IN4", "input"],
+      ["5", "IN5", "input"],
+      ["6", "IN6", "input"],
+      ["7", "IN7", "input"],
+      ["8", "IN8", "input"],
+      ["9", "IN9", "input"],
+      ["10", "GND", "power_in"],
+      ["11", "~{OE}", "input"],
+      ["12", "NC", "no_connect"],
+      ["13", "NC", "no_connect"],
+      ["14", "NC", "no_connect"],
+      ["15", "C2", "output"],
+      ["16", "C1", "output"],
+      ["17", "C0", "output"],
+      ["18", "ASD", "output"],
+      ["19", "~{BOOT}", "output"],
+      ["20", "+5V", "power_in"]
+    ]}
+  ]
+}

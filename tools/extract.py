@@ -86,9 +86,9 @@ def git_commit(repo, path):
     def git(*args):
         return subprocess.run(['git', '-C', repo] + list(args),
                               capture_output=True, text=True).stdout.strip()
-    commit = git('log', '-1', '--format=%h', '--', path)
+    commit = git('log', '-1', '--format=%h', '--', path) or 'untracked'
     dirty = bool(git('status', '--porcelain', '--', path))
-    return commit, dirty
+    return commit, dirty and commit != 'untracked'
 
 
 def default_type(name):

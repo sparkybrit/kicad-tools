@@ -118,7 +118,7 @@ def main():
         print('%d difference%s' % (len(errs), '' if len(errs) == 1 else 's'))
         return 1
     print('ok: library matches interfaces/' +
-          (''.join('; %s matches its schematic' % n for n in checked)))
+          (''.join('; %s matches its source' % n for n in checked)))
     return 0
 
 
