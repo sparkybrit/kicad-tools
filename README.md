@@ -17,6 +17,7 @@ module's insides. The reasoning is in sparky1's `KICAD_MODULES.md`.
 | `interfaces/<MODULE>.json` | Each module's connector pins as read from its own schematic, and the commit they came from |
 | `tools/extract.py` | Reads a module's interface from its repo, via `kicad-cli sch export netlist` |
 | `tools/build_lib.py` | Builds the library from `interfaces/` |
+| `tools/check.py` | Fails if the library is not what `build_lib.py` generates, or if a module's schematic no longer matches its interface file |
 | `tools/sexp.py` | S-expression reader and writer, from sparky1-backplane |
 
 ## Using it
@@ -39,5 +40,15 @@ make
 Commit the new `interfaces/MODULE.json` and library together. Names are cleaned on the way in: the sheet
 path goes, an overbar left unclosed in the source is closed (`~{BR` becomes `~{BR}`), and an unconnected
 pin is `NC`.
+
+## Checking
+
+```
+make check                                                            # library against interfaces/
+uv run --no-project python -I tools/check.py SRAM_ADAPTER ../sram-breadboard-adaptor   # a module against its schematic
+```
+
+Each difference is reported by connector and pin, and the exit status is 1. Run the second form in a module's
+repo before committing a change to its connectors.
 
 Requires KiCad 10 (`kicad-cli`) and uv.
