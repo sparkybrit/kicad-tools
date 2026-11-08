@@ -7,6 +7,11 @@
 #   connectors   the references of the connectors that make up its interface,
 #                in unit order (unit A is the first)
 #   names        optional {connector = text} shown inside each unit
+#   sides        optional {left = [...], right = [...]}: draw every connector in
+#                one body instead of a unit each, the connectors down each side
+#                in the order given, as they sit on the board
+#   reversed     optional [connectors] drawn last pin first, for a header that
+#                runs the other way on the board from the one facing it
 
 [SRAM_ADAPTER]
 description = "8 MB SRAM breadboard adapter: eight LY62W10248 (1M x 8) in two banks of four. J0 address and control, J1 data"
@@ -14,6 +19,9 @@ repo = "https://github.com/sparkybrit/sram-breadboard-adapter"
 schematic = "sram-breadboard-adaptor.kicad_sch"
 connectors = ["J0", "J1"]
 names = { J0 = "J0 address, control", J1 = "J1 data" }
+# J0 and J1 face each other along the long edges, running opposite ways: J1 pin 1 faces J0 pin 40.
+sides = { left = ["J1"], right = ["J0"] }
+reversed = ["J0"]
 
 [CPU_ADAPTER]
 description = "MC68030 PGA-to-breadboard adapter, v1.0. J1 address, J2 data, J3 and J4 control (bus arbitration, sizing, cache, interrupts)"
@@ -21,6 +29,8 @@ repo = "https://github.com/sparkybrit/68030-breadboard-adapter"
 schematic = "68030-breadboard.kicad_sch"
 connectors = ["J1", "J2", "J3", "J4"]
 names = { J1 = "J1 address", J2 = "J2 data", J3 = "J3 control", J4 = "J4 control" }
+# Two 52-pin rows on the board: J2 then J3 (D0 first), J1 then J4 (A0 first).
+sides = { left = ["J2", "J3"], right = ["J1", "J4"] }
 
 [BUSDECODER]
 description = "busdecoder, ATF22V10C: address decode, chip selects, /CIIN, /IACK, /DSACK0 and /DSACK1"
@@ -82,6 +92,8 @@ repo = "https://github.com/sparkybrit/rom-ram-breadboard-adapter"
 schematic = "flash-breadboard-adaptor.kicad_sch"
 connectors = ["J1", "J2"]
 names = { J1 = "J1 address", J2 = "J2 data, control" }
+# J1 and J2 face each other, running the same way.
+sides = { left = ["J2"], right = ["J1"] }
 
 [DUART]
 description = "Exar XR68C681 DUART (MC68681-compatible), 44-pin PLCC on a 44-pin breadboard adapter numbered as the PLCC: console, timer, interrupt at level 5"
@@ -96,6 +108,7 @@ repo = "https://github.com/sparkybrit/sparky1-modules"
 pins = "sources/POWER_CLOCK.pins"
 connectors = ["BB", "JACK"]
 names = { BB = "breadboard pins", JACK = "12 V barrel jack" }
+sides = { left = ["BB"], right = ["JACK"] }
 
 [RESISTOR_ADAPTER_8]
 description = "Eight resistors on a 16-pin DIP adapter, resistor k from pin k (Rka) to pin 17-k (Rkb). Two fitted: 33 ohm series resistors on the CF data lines"

@@ -28,7 +28,7 @@ import uuid as _uuid
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from sexp import dumps, find, Str
+from sexp import dumps, find, find_all, Str
 from symlib import place_pin
 
 NS = _uuid.UUID('2f1d4b8a-6c3e-5a7f-9b0d-1e2c3a4b5c6d')
@@ -190,7 +190,9 @@ class Sheet:
     # -- symbols ----------------------------------------------------------
     def symbol(self, lib_id, ref, value, p, rot=0, mirror=None, unit=1,
                footprint='', datasheet='', description='', fields=(),
-               show_value=True, key=None):
+               show_value=True, key=None, lib_fields=False):
+        """Place a symbol. lib_fields puts Reference and Value where the library
+        draws them (unrotated symbols only), rather than beside the origin."""
         nick, name = lib_id.split(':', 1)
         sym = self.libs[nick].get(name)
         for pin in sym.pins:
@@ -213,10 +215,19 @@ class Sheet:
                  ['fields_autoplaced', 'yes'],
                  ['uuid', Str(uid)]]
         is_power = ref.startswith('#')
-        node.append(field('Reference', ref, x + 2.54, y - 1.27,
-                          justify=('left',), hide=is_power))
-        node.append(field('Value', value, x + 2.54, y + 1.27,
-                          justify=('left',), hide=not show_value))
+        spots = {'Reference': (x + 2.54, y - 1.27, ('left',)),
+                 'Value': (x + 2.54, y + 1.27, ('left',))}
+        if lib_fields and not rot and not mirror:
+            for prop in find_all(sym.node, 'property'):
+                if str(prop[1]) in spots:
+                    pat = find(prop, 'at')
+                    just = find(find(prop, 'effects') or [], 'justify')
+                    spots[str(prop[1])] = (x + float(pat[1]), y - float(pat[2]),
+                                           tuple(str(j) for j in just[1:]) if just else ())
+        rx, ry, rj = spots['Reference']
+        vx, vy, vj = spots['Value']
+        node.append(field('Reference', ref, rx, ry, justify=rj, hide=is_power))
+        node.append(field('Value', value, vx, vy, justify=vj, hide=not show_value))
         for fname, fvalue in [('Footprint', footprint), ('Datasheet', datasheet),
                               ('Description', description)] + list(fields):
             node.append(field(fname, fvalue, x, y, hide=True))

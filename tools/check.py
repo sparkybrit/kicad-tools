@@ -20,25 +20,33 @@ import build_lib
 
 
 def library_pins(path):
-    """{symbol: [[(number, name, type), ...] per unit]} read back from a .kicad_sym."""
+    """{symbol: [(connector or None, [(number, name, type), ...])]} read from a .kicad_sym.
+
+    Pins numbered CONN.N are grouped by connector, whatever unit they are drawn
+    in; otherwise each unit is one connector, its name left to the caller."""
     root = parse(open(path).read())[0]
     out = {}
     for sym in find_all(root, 'symbol'):
         name = str(sym[1])
-        units = {}
+        units, conns = {}, {}
         for sub in find_all(sym, 'symbol'):
             unit = int(str(sub[1]).rsplit('_', 2)[-2])
             for p in find_all(sub, 'pin'):
-                # A module with several connectors numbers its pins CONN.N.
-                number = str(find(p, 'number')[1]).split('.', 1)[-1]
-                units.setdefault(unit, []).append(
-                    (number, str(find(p, 'name')[1]), str(p[1])))
+                number = str(find(p, 'number')[1])
+                pin = (number.split('.', 1)[-1], str(find(p, 'name')[1]), str(p[1]))
+                if '.' in number:
+                    conns.setdefault(number.split('.', 1)[0], []).append(pin)
+                else:
+                    units.setdefault(unit, []).append(pin)
+        key = lambda p: extract.pin_key(p[0])
+        if conns:
+            out[name] = [(c, sorted(ps, key=key)) for c, ps in conns.items()]
+            continue
         # Unit 0 holds pins common to every unit: fold them into each real unit.
         common = units.pop(0, [])
         if not units:
             units[1] = []
-        out[name] = [sorted(common + units[u], key=lambda p: extract.pin_key(p[0]))
-                     for u in sorted(units)]
+        out[name] = [(None, sorted(common + units[u], key=key)) for u in sorted(units)]
     return out
 
 
@@ -84,11 +92,16 @@ def check_library():
             continue
         iface = extract.load(name)
         refs = [c['ref'] for c in iface['connectors']]
-        if len(pins[name]) != len(refs):
-            errs.append('%s: library has %d units, interface has %d connectors'
-                        % (name, len(pins[name]), len(refs)))
-            continue
-        errs += compare('library %s' % name, as_pairs(iface), list(zip(refs, pins[name])))
+        got = pins[name]
+        if got[0][0] is None:
+            if len(got) != len(refs):
+                errs.append('%s: library has %d units, interface has %d connectors'
+                            % (name, len(got), len(refs)))
+                continue
+            got = [(r, ps) for r, (_, ps) in zip(refs, got)]
+        else:
+            got.sort(key=lambda g: refs.index(g[0]) if g[0] in refs else len(refs))
+        errs += compare('library %s' % name, as_pairs(iface), got)
     return errs
 
 

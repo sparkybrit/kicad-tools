@@ -2,8 +2,10 @@
 
     uv run tools/build_lib.py
 
-One symbol per module, one unit per connector. Each pin's number is the
-connector pin (CONN.N, such as J1.8, when the module has several connectors) and its name is the module's own signal name, so the system
+One symbol per module, one unit per connector, or one body with the connectors
+down its two sides when modules.toml gives the module `sides`. Each pin's number
+is the connector pin (CONN.N, such as J1.8, when the module has several
+connectors) and its name is the module's own signal name, so the system
 schematic wires modules together exactly as the breadboard does. The library
 is generated: edit modules.toml or re-extract an interface, never the
 .kicad_sym by hand.
@@ -115,6 +117,80 @@ def build_symbol(name, mod, iface):
     return sym
 
 
+def pin_node(etype, x, y, angle, number, pname):
+    font = ['effects', ['font', ['size', fmt(FONT), fmt(FONT)]]]
+    return ['pin', etype, 'line', ['at', fmt(x), fmt(y), str(angle)],
+            ['length', fmt(PIN_LEN)],
+            ['name', Str(pname), font], ['number', Str(number), font]]
+
+
+def build_sided(name, mod, iface):
+    """Every connector in one body, down the two sides as on the board.
+
+    Each connector is headed by its name and followed by its pins, so headers
+    that face each other on the board read straight across."""
+    conns = {c['ref']: c for c in iface['connectors']}
+    sides = mod['sides']
+    placed = [r for s in ('left', 'right') for r in sides.get(s, [])]
+    if sorted(placed) != sorted(conns):
+        sys.exit('%s: sides %s do not list each connector %s once'
+                 % (name, placed, list(conns)))
+    labels = mod.get('names', {})
+    rev = set(mod.get('reversed', []))
+
+    def rows(side):
+        out = []          # (heading text) or (number, name, type)
+        for ref in sides.get(side, []):
+            pins = conns[ref]['pins'][::-1] if ref in rev else conns[ref]['pins']
+            out.append(labels.get(ref, ref))
+            out += [('%s.%s' % (ref, n), pn, et) for n, pn, et in pins]
+        return out
+
+    left, right = rows('left'), rows('right')
+
+    def widest(rs):
+        return max([shown_len(r if isinstance(r, str) else r[1]) for r in rs] + [0])
+    half_w = snap_up((widest(left) + widest(right)) * CHAR_W / 2 + 2 * GRID)
+    n = max(len(left), len(right))
+    top = math.ceil((n - 1) / 2) * GRID
+    body_top, body_bot = top + GRID, top - (n - 1) * GRID - GRID
+    descr = '%s Source: %s, %s at %s.' % (mod['description'], iface['repo'],
+                                          iface['source'], iface['commit'])
+    sym = ['symbol', Str(name),
+           ['pin_names', ['offset', '1.016']],
+           ['exclude_from_sim', 'yes'], ['in_bom', 'no'], ['on_board', 'no'],
+           ['in_pos_files', 'no'], ['duplicate_pin_numbers_are_jumpers', 'no'],
+           prop('Reference', mod.get('reference', 'A'), -half_w, body_top + GRID, justify='left'),
+           prop('Value', name, -half_w, body_bot - GRID, justify='left'),
+           prop('Footprint', '', 0, 0, hide=True),
+           prop('Datasheet', iface['repo'], 0, 0, hide=True),
+           prop('Description', descr, 0, 0, hide=True),
+           prop('Source_Commit', iface['commit'], 0, 0, hide=True),
+           prop('ki_keywords', 'sparky1 module interface', 0, 0, hide=True),
+           ]
+    body = ['symbol', Str('%s_1_1' % name),
+            ['rectangle', ['start', fmt(-half_w), fmt(body_top)],
+             ['end', fmt(half_w), fmt(body_bot)],
+             ['stroke', ['width', '0.254'], ['type', 'default']],
+             ['fill', ['type', 'background']]]]
+    for side, rs in (('left', left), ('right', right)):
+        sign = -1 if side == 'left' else 1
+        for i, r in enumerate(rs):
+            y = top - i * GRID
+            if isinstance(r, str):
+                body.append(['text', Str(r),
+                             ['at', fmt(sign * (half_w - GRID)), fmt(y), '0'],
+                             ['effects', ['font', ['size', fmt(FONT), fmt(FONT)], ['bold', 'yes']],
+                              ['justify', side]]])
+            else:
+                number, pname, etype = r
+                body.append(pin_node(etype, sign * (half_w + PIN_LEN), y,
+                                     0 if side == 'left' else 180, number, pname))
+    sym.append(body)
+    sym.append(['embedded_fonts', 'no'])
+    return sym
+
+
 def build_stock(name, mod, iface):
     """A stock KiCad symbol, flattened and renamed to the module's name."""
     from sexp import find_all
@@ -154,6 +230,8 @@ def build():
                      % (name, refs, reg[name]['connectors']))
         if 'stock' in reg[name]:
             syms.append(build_stock(name, reg[name], iface))
+        elif 'sides' in reg[name]:
+            syms.append(build_sided(name, reg[name], iface))
         else:
             syms.append(build_symbol(name, reg[name], iface))
     root = ['kicad_symbol_lib',
