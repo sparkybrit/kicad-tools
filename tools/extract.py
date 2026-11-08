@@ -256,14 +256,59 @@ def connectors_from_stock(name, mod, repo):
     return 'KiCad stock ' + mod['stock'], [{'ref': mod['connectors'][0], 'pins': pins}]
 
 
+def label_name(text):
+    """A label's '/X' (active low) as KiCad's '~{X}'; 'R/W' is left alone."""
+    return '~{%s}' % text[1:] if text.startswith('/') else text
+
+
+def connectors_from_label(name, mod, repo):
+    """A part wired by its ic-label-generator label: the label's pins are the truth.
+
+    Pin numbers are the label's pin_numbers, or its convention: labels 1..N are
+    the left rail top to bottom (pins 1..N), N+1..2N the right rail top to
+    bottom (pins 2N..N+1). Types from the label's inputs and outputs lists;
+    anything else is power (GND, VCC), NC, bidirectional (a data line D<n>), or
+    passive (what the label greys out).
+    """
+    path = os.path.join(repo, mod['label'])
+    if not os.path.exists(path):
+        sys.exit('%s: no label definition %s' % (name, path))
+    with open(path) as fh:
+        d = json.load(fh)
+    labels, n = d['pin_labels'], d['pins_per_side']
+    if len(labels) != 2 * n:
+        sys.exit('%s: %s has %d labels for %d pins' % (name, path, len(labels), 2 * n))
+    numbers = d.get('pin_numbers') or (list(range(1, n + 1)) + list(range(2 * n, n, -1)))
+    ins, outs = set(d.get('inputs', [])), set(d.get('outputs', []))
+    pins = []
+    for num, text in zip(numbers, labels):
+        if text in ('GND', 'VCC'):
+            t = 'power_in'
+        elif text == 'NC':
+            t = 'no_connect'
+        elif text in ins:
+            t = 'input'
+        elif text in outs:
+            t = 'output'
+        elif re.fullmatch(r'D\d+', text):
+            t = 'bidirectional'
+        else:
+            t = 'passive'
+        pins.append([str(num), label_name(text), t])
+    pins.sort(key=lambda p: pin_key(p[0]))
+    return mod['label'], [{'ref': mod['connectors'][0], 'pins': pins}]
+
+
 def extract(name, repo):
     """The interface of module `name`, read from the checkout at `repo`."""
     mod = module(name)
-    if 'stock' in mod:
+    if 'label' in mod:
+        source, connectors = connectors_from_label(name, mod, repo)
+    elif 'stock' in mod:
         source, connectors = connectors_from_stock(name, mod, repo)
         return {'module': name, 'repo': mod['repo'], 'source': source,
                 'commit': 'KiCad ' + kicad_version(), 'connectors': connectors}
-    if 'pins' in mod:
+    elif 'pins' in mod:
         source, connectors = connectors_from_pins(name, mod, repo)
     elif 'pld' in mod:
         source, connectors = connectors_from_pld(name, mod, repo)

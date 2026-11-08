@@ -63,9 +63,9 @@ names = { DIP20 = "watchdog, 16V8" }
 reference = "U"
 
 [CF_ADAPTER]
-description = "50-pin CompactFlash breadboard adapter (bought in), the card in True IDE mode. Pins numbered as the CF connector's"
-repo = "https://github.com/sparkybrit/sparky1-modules"
-pins = "sources/CF_ADAPTER.pins"
+description = "ProtoAdvantage 50-pin CompactFlash breadboard adapter, the card in True IDE mode. Pins numbered as the CF connector's; names as CF 4.1 (DMARQ, -DMACK on 43, 44)"
+repo = "https://github.com/sparkybrit/ic-label-generator"
+label = "defs/cf-breadboard-adapter.json"
 connectors = ["CF"]
 names = { CF = "CompactFlash, True IDE" }
 
@@ -85,11 +85,11 @@ reference = "U"
 names = { DIP32 = "DS1250Y-70" }
 
 [DUART]
-description = "Exar XR68C681 DUART (MC68681-compatible), 40-pin DIP: console, timer, interrupt at level 5"
-repo = "https://github.com/sparkybrit/sparky1-modules"
-stock = "Interface_UART:68C681"
-connectors = ["DIP40"]
-value = "XR68C681"
+description = "Exar XR68C681 DUART (MC68681-compatible), 44-pin PLCC on a 44-pin breadboard adapter numbered as the PLCC: console, timer, interrupt at level 5"
+repo = "https://github.com/sparkybrit/ic-label-generator"
+label = "defs/xp68c681-breadboard-adapter.json"
+connectors = ["PLCC44"]
+names = { PLCC44 = "XR68C681, PLCC-44" }
 
 [OSCILLATOR]
 description = "Raltron CO12100-16.000, 16 MHz half-size DIP-8 can: pin 1 NC, 4 GND, 5 OUT, 8 VCC"

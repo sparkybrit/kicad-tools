@@ -1595,7 +1595,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://github.com/sparkybrit/sparky1-modules"
+		(property "Datasheet" "https://github.com/sparkybrit/ic-label-generator"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1606,7 +1606,7 @@
 				)
 			)
 		)
-		(property "Description" "50-pin CompactFlash breadboard adapter (bought in), the card in True IDE mode. Pins numbered as the CF connector's Source: https://github.com/sparkybrit/sparky1-modules, sources/CF_ADAPTER.pins at 5b8078a."
+		(property "Description" "ProtoAdvantage 50-pin CompactFlash breadboard adapter, the card in True IDE mode. Pins numbered as the CF connector's; names as CF 4.1 (DMARQ, -DMACK on 43, 44) Source: https://github.com/sparkybrit/ic-label-generator, defs/cf-breadboard-adapter.json at 9ec3279."
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1617,7 +1617,7 @@
 				)
 			)
 		)
-		(property "Source_Commit" "5b8078a"
+		(property "Source_Commit" "9ec3279"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1680,7 +1680,7 @@
 			(pin bidirectional line
 				(at -17.78 60.96 0)
 				(length 5.08)
-				(name "D03"
+				(name "D3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1698,7 +1698,7 @@
 			(pin bidirectional line
 				(at -17.78 58.42 0)
 				(length 5.08)
-				(name "D04"
+				(name "D4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1716,7 +1716,7 @@
 			(pin bidirectional line
 				(at -17.78 55.88 0)
 				(length 5.08)
-				(name "D05"
+				(name "D5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1734,7 +1734,7 @@
 			(pin bidirectional line
 				(at -17.78 53.34 0)
 				(length 5.08)
-				(name "D06"
+				(name "D6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1752,7 +1752,7 @@
 			(pin bidirectional line
 				(at -17.78 50.8 0)
 				(length 5.08)
-				(name "D07"
+				(name "D7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1806,7 +1806,7 @@
 			(pin input line
 				(at -17.78 43.18 0)
 				(length 5.08)
-				(name "~{ATA_SEL}"
+				(name "~{ATASEL}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1824,7 +1824,7 @@
 			(pin input line
 				(at -17.78 40.64 0)
 				(length 5.08)
-				(name "A09"
+				(name "A9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1842,7 +1842,7 @@
 			(pin input line
 				(at -17.78 38.1 0)
 				(length 5.08)
-				(name "A08"
+				(name "A8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1860,7 +1860,7 @@
 			(pin input line
 				(at -17.78 35.56 0)
 				(length 5.08)
-				(name "A07"
+				(name "A7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1896,7 +1896,7 @@
 			(pin input line
 				(at -17.78 30.48 0)
 				(length 5.08)
-				(name "A06"
+				(name "A6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1914,7 +1914,7 @@
 			(pin input line
 				(at -17.78 27.94 0)
 				(length 5.08)
-				(name "A05"
+				(name "A5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1932,7 +1932,7 @@
 			(pin input line
 				(at -17.78 25.4 0)
 				(length 5.08)
-				(name "A04"
+				(name "A4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1950,7 +1950,7 @@
 			(pin input line
 				(at -17.78 22.86 0)
 				(length 5.08)
-				(name "A03"
+				(name "A3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1968,7 +1968,7 @@
 			(pin input line
 				(at -17.78 20.32 0)
 				(length 5.08)
-				(name "A02"
+				(name "A2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -1986,7 +1986,7 @@
 			(pin input line
 				(at -17.78 17.78 0)
 				(length 5.08)
-				(name "A01"
+				(name "A1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2004,7 +2004,7 @@
 			(pin input line
 				(at -17.78 15.24 0)
 				(length 5.08)
-				(name "A00"
+				(name "A0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2022,7 +2022,7 @@
 			(pin bidirectional line
 				(at -17.78 12.7 0)
 				(length 5.08)
-				(name "D00"
+				(name "D0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2040,7 +2040,7 @@
 			(pin bidirectional line
 				(at -17.78 10.16 0)
 				(length 5.08)
-				(name "D01"
+				(name "D1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2058,7 +2058,7 @@
 			(pin bidirectional line
 				(at -17.78 7.62 0)
 				(length 5.08)
-				(name "D02"
+				(name "D2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2073,7 +2073,7 @@
 					)
 				)
 			)
-			(pin open_collector line
+			(pin output line
 				(at -17.78 5.08 0)
 				(length 5.08)
 				(name "~{IOCS16}"
@@ -2307,7 +2307,7 @@
 					)
 				)
 			)
-			(pin tri_state line
+			(pin output line
 				(at -17.78 -27.94 0)
 				(length 5.08)
 				(name "INTRQ"
@@ -2397,7 +2397,7 @@
 					)
 				)
 			)
-			(pin open_collector line
+			(pin output line
 				(at -17.78 -40.64 0)
 				(length 5.08)
 				(name "IORDY"
@@ -2415,10 +2415,10 @@
 					)
 				)
 			)
-			(pin tri_state line
+			(pin output line
 				(at -17.78 -43.18 0)
 				(length 5.08)
-				(name "~{INPACK}"
+				(name "DMARQ"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2436,7 +2436,7 @@
 			(pin input line
 				(at -17.78 -45.72 0)
 				(length 5.08)
-				(name "~{REG}"
+				(name "~{DMACK}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2451,7 +2451,7 @@
 					)
 				)
 			)
-			(pin open_collector line
+			(pin passive line
 				(at -17.78 -48.26 0)
 				(length 5.08)
 				(name "~{DASP}"
@@ -2469,7 +2469,7 @@
 					)
 				)
 			)
-			(pin open_collector line
+			(pin passive line
 				(at -17.78 -50.8 0)
 				(length 5.08)
 				(name "~{PDIAG}"
@@ -2490,7 +2490,7 @@
 			(pin bidirectional line
 				(at -17.78 -53.34 0)
 				(length 5.08)
-				(name "D08"
+				(name "D8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2508,7 +2508,7 @@
 			(pin bidirectional line
 				(at -17.78 -55.88 0)
 				(length 5.08)
-				(name "D09"
+				(name "D9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4610,54 +4610,34 @@
 		(pin_names
 			(offset 1.016)
 		)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
+		(exclude_from_sim yes)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files no)
 		(duplicate_pin_numbers_are_jumpers no)
-		(property "Reference" "U"
-			(at -1.27 2.54 0)
+		(property "Reference" "A"
+			(at -10.16 63.5 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
-		(property "Value" "XR68C681"
-			(at -1.27 -2.54 0)
+		(property "Value" "DUART"
+			(at -10.16 -58.42 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at -1.27 0 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.elektronik.ropla.eu/pdf/stock/exa/xr68c681.pdf"
-			(at -1.27 0 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Exar XR68C681 DUART (MC68681-compatible), 40-pin DIP: console, timer, interrupt at level 5 Stock symbol Interface_UART:68C681, from KiCad 10.0.7."
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4668,7 +4648,7 @@
 				)
 			)
 		)
-		(property "ki_keywords" "UART serial"
+		(property "Datasheet" "https://github.com/sparkybrit/ic-label-generator"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4679,10 +4659,43 @@
 				)
 			)
 		)
-		(symbol "DUART_0_1"
+		(property "Description" "Exar XR68C681 DUART (MC68681-compatible), 44-pin PLCC on a 44-pin breadboard adapter numbered as the PLCC: console, timer, interrupt at level 5 Source: https://github.com/sparkybrit/ic-label-generator, defs/xp68c681-breadboard-adapter.json at e33c5b9."
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Source_Commit" "e33c5b9"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "sparky1 module interface"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "DUART_1_1"
 			(rectangle
-				(start -15.24 -33.02)
-				(end 12.7 35.56)
+				(start -10.16 60.96)
+				(end 10.16 -55.88)
 				(stroke
 					(width 0.254)
 					(type default)
@@ -4691,12 +4704,18 @@
 					(type background)
 				)
 			)
-		)
-		(symbol "DUART_1_1"
-			(pin input line
-				(at -22.86 33.02 0)
-				(length 7.62)
-				(name "A1"
+			(text "XR68C681, PLCC-44"
+				(at 0 58.42 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(pin no_connect line
+				(at -15.24 55.88 0)
+				(length 5.08)
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4712,9 +4731,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 12.7 0)
-				(length 7.62)
-				(name "IP3"
+				(at -15.24 53.34 0)
+				(length 5.08)
+				(name "A1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4730,9 +4749,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 30.48 0)
-				(length 7.62)
-				(name "A2"
+				(at -15.24 50.8 0)
+				(length 5.08)
+				(name "IP3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4748,9 +4767,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 17.78 0)
-				(length 7.62)
-				(name "IP1"
+				(at -15.24 48.26 0)
+				(length 5.08)
+				(name "A2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4766,9 +4785,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 27.94 0)
-				(length 7.62)
-				(name "A3"
+				(at -15.24 45.72 0)
+				(length 5.08)
+				(name "IP1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4784,9 +4803,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 25.4 0)
-				(length 7.62)
-				(name "A4"
+				(at -15.24 43.18 0)
+				(length 5.08)
+				(name "A3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4802,9 +4821,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 20.32 0)
-				(length 7.62)
-				(name "IP0"
+				(at -15.24 40.64 0)
+				(length 5.08)
+				(name "A4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4820,9 +4839,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 -20.32 0)
-				(length 7.62)
-				(name "RWN"
+				(at -15.24 38.1 0)
+				(length 5.08)
+				(name "IP0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4837,10 +4856,10 @@
 					)
 				)
 			)
-			(pin output line
-				(at 20.32 -20.32 180)
-				(length 7.62)
-				(name "DTACKN"
+			(pin input line
+				(at -15.24 35.56 0)
+				(length 5.08)
+				(name "R/W"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4855,10 +4874,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at 20.32 -10.16 180)
-				(length 7.62)
-				(name "RXDB"
+			(pin output line
+				(at -15.24 33.02 0)
+				(length 5.08)
+				(name "~{DTACK}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4873,10 +4892,10 @@
 					)
 				)
 			)
-			(pin output line
-				(at 20.32 -12.7 180)
-				(length 7.62)
-				(name "TXDB"
+			(pin input line
+				(at -15.24 30.48 0)
+				(length 5.08)
+				(name "RXDB"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4891,10 +4910,10 @@
 					)
 				)
 			)
-			(pin output line
-				(at 20.32 17.78 180)
-				(length 7.62)
-				(name "OP1"
+			(pin no_connect line
+				(at -15.24 27.94 0)
+				(length 5.08)
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4910,9 +4929,9 @@
 				)
 			)
 			(pin output line
-				(at 20.32 12.7 180)
-				(length 7.62)
-				(name "OP3"
+				(at -15.24 25.4 0)
+				(length 5.08)
+				(name "TXDB"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4928,9 +4947,9 @@
 				)
 			)
 			(pin output line
-				(at 20.32 7.62 180)
-				(length 7.62)
-				(name "OP5"
+				(at -15.24 22.86 0)
+				(length 5.08)
+				(name "OP1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4946,9 +4965,9 @@
 				)
 			)
 			(pin output line
-				(at 20.32 2.54 180)
-				(length 7.62)
-				(name "OP7"
+				(at -15.24 20.32 0)
+				(length 5.08)
+				(name "OP3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4963,10 +4982,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at -22.86 0 0)
-				(length 7.62)
-				(name "D1"
+			(pin output line
+				(at -15.24 17.78 0)
+				(length 5.08)
+				(name "OP5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4981,10 +5000,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at -22.86 -5.08 0)
-				(length 7.62)
-				(name "D3"
+			(pin output line
+				(at -15.24 15.24 0)
+				(length 5.08)
+				(name "OP7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4999,10 +5018,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at -22.86 -10.16 0)
-				(length 7.62)
-				(name "D5"
+			(pin bidirectional line
+				(at -15.24 12.7 0)
+				(length 5.08)
+				(name "D1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5017,10 +5036,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at -22.86 -15.24 0)
-				(length 7.62)
-				(name "D7"
+			(pin bidirectional line
+				(at -15.24 10.16 0)
+				(length 5.08)
+				(name "D3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5035,10 +5054,10 @@
 					)
 				)
 			)
-			(pin power_in line
-				(at 0 -40.64 90)
-				(length 7.62)
-				(name "GND"
+			(pin bidirectional line
+				(at -15.24 7.62 0)
+				(length 5.08)
+				(name "D5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5053,10 +5072,10 @@
 					)
 				)
 			)
-			(pin output line
-				(at 20.32 -25.4 180)
-				(length 7.62)
-				(name "INTRN"
+			(pin bidirectional line
+				(at -15.24 5.08 0)
+				(length 5.08)
+				(name "D7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5071,10 +5090,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at -22.86 -12.7 0)
-				(length 7.62)
-				(name "D6"
+			(pin power_in line
+				(at -15.24 2.54 0)
+				(length 5.08)
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5089,10 +5108,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at -22.86 -7.62 0)
-				(length 7.62)
-				(name "D4"
+			(pin no_connect line
+				(at -15.24 0 0)
+				(length 5.08)
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5107,10 +5126,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at -22.86 -2.54 0)
-				(length 7.62)
-				(name "D2"
+			(pin output line
+				(at -15.24 -2.54 0)
+				(length 5.08)
+				(name "~{INTR}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5125,10 +5144,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at -22.86 2.54 0)
-				(length 7.62)
-				(name "D0"
+			(pin bidirectional line
+				(at -15.24 -5.08 0)
+				(length 5.08)
+				(name "D6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5143,10 +5162,10 @@
 					)
 				)
 			)
-			(pin output line
-				(at 20.32 5.08 180)
-				(length 7.62)
-				(name "OP6"
+			(pin bidirectional line
+				(at -15.24 -7.62 0)
+				(length 5.08)
+				(name "D4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5161,10 +5180,10 @@
 					)
 				)
 			)
-			(pin output line
-				(at 20.32 10.16 180)
-				(length 7.62)
-				(name "OP4"
+			(pin bidirectional line
+				(at -15.24 -10.16 0)
+				(length 5.08)
+				(name "D2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5179,10 +5198,10 @@
 					)
 				)
 			)
-			(pin output line
-				(at 20.32 15.24 180)
-				(length 7.62)
-				(name "OP2"
+			(pin bidirectional line
+				(at -15.24 -12.7 0)
+				(length 5.08)
+				(name "D0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5198,9 +5217,9 @@
 				)
 			)
 			(pin output line
-				(at 20.32 20.32 180)
-				(length 7.62)
-				(name "OP0"
+				(at -15.24 -15.24 0)
+				(length 5.08)
+				(name "OP6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5216,9 +5235,9 @@
 				)
 			)
 			(pin output line
-				(at 20.32 -5.08 180)
-				(length 7.62)
-				(name "TXDA"
+				(at -15.24 -17.78 0)
+				(length 5.08)
+				(name "OP4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5233,10 +5252,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at 20.32 -2.54 180)
-				(length 7.62)
-				(name "RXDA"
+			(pin output line
+				(at -15.24 -20.32 0)
+				(length 5.08)
+				(name "OP2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5251,10 +5270,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at 20.32 33.02 180)
-				(length 7.62)
-				(name "X1/CLK"
+			(pin output line
+				(at -15.24 -22.86 0)
+				(length 5.08)
+				(name "OP0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5270,9 +5289,9 @@
 				)
 			)
 			(pin output line
-				(at 20.32 25.4 180)
-				(length 7.62)
-				(name "X2"
+				(at -15.24 -25.4 0)
+				(length 5.08)
+				(name "TXDA"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5287,10 +5306,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at -22.86 -25.4 0)
-				(length 7.62)
-				(name "RESETN"
+			(pin no_connect line
+				(at -15.24 -27.94 0)
+				(length 5.08)
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5306,9 +5325,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 -22.86 0)
-				(length 7.62)
-				(name "CSN"
+				(at -15.24 -30.48 0)
+				(length 5.08)
+				(name "RXDA"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5324,9 +5343,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 15.24 0)
-				(length 7.62)
-				(name "IP2"
+				(at -15.24 -33.02 0)
+				(length 5.08)
+				(name "X1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5342,9 +5361,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 -27.94 0)
-				(length 7.62)
-				(name "IACKN"
+				(at -15.24 -35.56 0)
+				(length 5.08)
+				(name "X2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5360,9 +5379,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 7.62 0)
-				(length 7.62)
-				(name "IP5"
+				(at -15.24 -38.1 0)
+				(length 5.08)
+				(name "~{RESET}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5378,9 +5397,9 @@
 				)
 			)
 			(pin input line
-				(at -22.86 10.16 0)
-				(length 7.62)
-				(name "IP4"
+				(at -15.24 -40.64 0)
+				(length 5.08)
+				(name "~{CS}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5395,10 +5414,10 @@
 					)
 				)
 			)
-			(pin power_in line
-				(at 0 43.18 270)
-				(length 7.62)
-				(name "VCC"
+			(pin input line
+				(at -15.24 -43.18 0)
+				(length 5.08)
+				(name "IP2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -5406,6 +5425,78 @@
 					)
 				)
 				(number "40"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -15.24 -45.72 0)
+				(length 5.08)
+				(name "~{IACK}"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "41"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -15.24 -48.26 0)
+				(length 5.08)
+				(name "IP5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "42"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -15.24 -50.8 0)
+				(length 5.08)
+				(name "IP4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "43"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -15.24 -53.34 0)
+				(length 5.08)
+				(name "VCC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "44"
 					(effects
 						(font
 							(size 1.27 1.27)
