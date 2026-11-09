@@ -117,10 +117,10 @@ def build_symbol(name, mod, iface):
     return sym
 
 
-def pin_node(etype, x, y, angle, number, pname):
+def pin_node(etype, x, y, angle, number, pname, length=PIN_LEN):
     font = ['effects', ['font', ['size', fmt(FONT), fmt(FONT)]]]
     return ['pin', etype, 'line', ['at', fmt(x), fmt(y), str(angle)],
-            ['length', fmt(PIN_LEN)],
+            ['length', fmt(length)],
             ['name', Str(pname), font], ['number', Str(number), font]]
 
 
@@ -129,46 +129,57 @@ def build_sided(name, mod, iface):
 
     Each run of pins follows a heading row, which names its connector the first
     time it appears, so pins that face each other on the board read straight
-    across."""
+    across. With body_width the body is drawn as wide as the package and as long
+    as its pins, their names outside it, their numbers just inside its edges and
+    the module's name down the middle, with no heading rows."""
     conns = {c['ref']: c for c in iface['connectors']}
     multi = len(conns) > 1
     labels = mod.get('names', {})
 
     def run(entry):
-        """(connector, its pins) for one sides entry: CONN or CONN:FIRST-LAST."""
+        """(heading or None, connector, its pins) for one sides entry:
+        [TEXT|]CONN, CONN:FIRST-LAST or CONN:P,Q,R."""
+        head, _, entry = entry.rpartition('|')
         ref, _, span = entry.partition(':')
         if ref not in conns:
             sys.exit('%s: sides entry %r names no connector of %s' % (name, entry, list(conns)))
         pins = conns[ref]['pins']
+        head = head or None
         if not span:
-            return ref, pins
+            return head, ref, pins
         by_num = {p[0]: p for p in pins}
-        a, _, b = span.partition('-')
-        try:
-            a, b = int(a), int(b)
-        except ValueError:
-            sys.exit('%s: sides entry %r: give CONN:FIRST-LAST' % (name, entry))
-        step = 1 if b >= a else -1
-        nums = [str(n) for n in range(a, b + step, step)]
+        if ',' in span or '-' not in span:
+            nums = span.split(',')
+        else:
+            a, _, b = span.partition('-')
+            try:
+                a, b = int(a), int(b)
+            except ValueError:
+                sys.exit('%s: sides entry %r: give CONN:FIRST-LAST' % (name, entry))
+            step = 1 if b >= a else -1
+            nums = [str(n) for n in range(a, b + step, step)]
         missing = [n for n in nums if n not in by_num]
         if missing:
             sys.exit('%s: sides entry %r: %s has no pin %s' % (name, entry, ref, missing))
-        return ref, [by_num[n] for n in nums]
+        return head, ref, [by_num[n] for n in nums]
 
     sides = mod['sides']
     runs = {s: [run(e) for e in sides.get(s, [])] for s in ('left', 'right')}
-    placed = [(ref, p[0]) for s in runs.values() for ref, ps in s for p in ps]
+    placed = [(ref, p[0]) for s in runs.values() for _, ref, ps in s for p in ps]
     every = [(c['ref'], p[0]) for c in iface['connectors'] for p in c['pins']]
     if sorted(placed) != sorted(every):
         sys.exit('%s: sides must place every pin once: %s placed, %d pins'
                  % (name, len(placed), len(every)))
 
     headed = set()
+    package = mod.get('body_width')
 
     def rows(side):
         out = []          # heading text ('' after the connector's first run), or a pin
-        for ref, pins in runs[side]:
-            out.append('' if ref in headed else labels.get(ref, ref))
+        for head, ref, pins in runs[side]:
+            if not package:
+                out.append(head if head is not None
+                           else '' if ref in headed else labels.get(ref, ref))
             headed.add(ref)
             out += [('%s.%s' % (ref, n) if multi else n, pn, et) for n, pn, et in pins]
         return out
@@ -177,14 +188,25 @@ def build_sided(name, mod, iface):
 
     def widest(rs):
         return max([shown_len(r if isinstance(r, str) else r[1]) for r in rs] + [0])
-    half_w = snap_up((widest(left) + widest(right)) * CHAR_W / 2 + 2 * GRID)
     n = max(len(left), len(right))
     top = math.ceil((n - 1) / 2) * GRID
-    body_top, body_bot = top + GRID, top - (n - 1) * GRID - GRID
+    pin_len = PIN_LEN
+    if package:
+        # As the package: half a pin pitch and a bit past the end pins (a 24-pin
+        # DIP's 1.25 in), the names outside on pins long enough to hold them,
+        # ending on the 2.54 mm grid.
+        half_w = package / 2
+        need = max(widest(left), widest(right)) * CHAR_W + 2.5
+        pin_len = snap_up(half_w + need) - half_w
+        body_top, body_bot = top + 0.75 * GRID, top - (n - 1) * GRID - 0.75 * GRID
+    else:
+        half_w = snap_up((widest(left) + widest(right)) * CHAR_W / 2 + 2 * GRID)
+        body_top, body_bot = top + GRID, top - (n - 1) * GRID - GRID
     descr = '%s Source: %s, %s at %s.' % (mod['description'], iface['repo'],
                                           iface['source'], iface['commit'])
     sym = ['symbol', Str(name),
-           ['pin_names', ['offset', '1.016']],
+           ['pin_names', ['offset', '0' if package else '1.016']],
+           ] + ([['pin_numbers', ['hide', 'yes']]] if package else []) + [
            ['exclude_from_sim', 'yes'], ['in_bom', 'no'], ['on_board', 'no'],
            ['in_pos_files', 'no'], ['duplicate_pin_numbers_are_jumpers', 'no'],
            prop('Reference', mod.get('reference', 'A'), -half_w, body_top + GRID, justify='left'),
@@ -200,6 +222,10 @@ def build_sided(name, mod, iface):
              ['end', fmt(half_w), fmt(body_bot)],
              ['stroke', ['width', '0.254'], ['type', 'default']],
              ['fill', ['type', 'background']]]]
+    if package:
+        title = ' / '.join(labels.get(c, c) for c in conns)
+        body.append(['text', Str(title), ['at', '0', fmt((body_top + body_bot) / 2), '900'],
+                     ['effects', ['font', ['size', fmt(FONT), fmt(FONT)], ['bold', 'yes']]]])
     for side, rs in (('left', left), ('right', right)):
         sign = -1 if side == 'left' else 1
         for i, r in enumerate(rs):
@@ -213,8 +239,15 @@ def build_sided(name, mod, iface):
                               ['justify', side]]])
             else:
                 number, pname, etype = r
-                body.append(pin_node(etype, sign * (half_w + PIN_LEN), y,
-                                     0 if side == 'left' else 180, number, pname))
+                if package:
+                    # Its number just inside the package edge, as on a chip label:
+                    # KiCad's own, below the pin, would sit on the next pin's name.
+                    body.append(['text', Str(number.split('.')[-1]),
+                                 ['at', fmt(sign * (half_w - 0.5)), fmt(y), '0'],
+                                 ['effects', ['font', ['size', fmt(FONT), fmt(FONT)]],
+                                  ['justify', side]]])
+                body.append(pin_node(etype, sign * (half_w + pin_len), y,
+                                     0 if side == 'left' else 180, number, pname, pin_len))
     sym.append(body)
     sym.append(['embedded_fonts', 'no'])
     return sym

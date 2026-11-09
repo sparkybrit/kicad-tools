@@ -11,7 +11,11 @@
 #                body with its pins down each side, top to bottom, as they sit on
 #                the board (its PCB as drawn, turned a quarter-turn clockwise).
 #                An entry is a connector, its pins in order, or CONN:FIRST-LAST
-#                for a run of them in that order (DIP24:24-13, J1:40-1)
+#                for a run of them in that order (DIP24:24-13, J1:40-1), or
+#                CONN:P,Q,R for those pins. "TEXT|ENTRY" heads that run with TEXT
+#   body_width   optional, mm: draw the body this wide, as the package is (a 0.3 in
+#                DIP is 7.62), with the pin names outside it and the module's name
+#                down the middle; its length follows the pin count
 
 [SRAM_ADAPTER]
 description = "8 MB SRAM breadboard adapter: eight LY62W10248 (1M x 8) in two banks of four. J0 address and control, J1 data"
@@ -39,6 +43,7 @@ connectors = ["DIP24"]
 names = { DIP24 = "busdecoder, 22V10" }
 reference = "U"
 sides = { left = ["DIP24:1-12"], right = ["DIP24:24-13"] }
+body_width = 7.62
 
 [SRAMMANAGER]
 description = "srammanager, ATF22V10C: the eight SRAM chip selects /CSA0-/CSB3, from /SRAMCS, A22, A1, A0, SIZ1, SIZ0, R/W and /DS"
@@ -48,6 +53,7 @@ connectors = ["DIP24"]
 names = { DIP24 = "srammanager, 22V10" }
 reference = "U"
 sides = { left = ["DIP24:1-12"], right = ["DIP24:24-13"] }
+body_width = 7.62
 
 [CFMANAGER]
 description = "cfmanager, ATF22V10C: CompactFlash wait states, /IORD and /IOWR, its /DSACK0 and /DSACK1, and -CS1"
@@ -57,6 +63,7 @@ connectors = ["DIP24"]
 names = { DIP24 = "cfmanager, 22V10" }
 reference = "U"
 sides = { left = ["DIP24:1-12"], right = ["DIP24:24-13"] }
+body_width = 7.62
 
 [BOOT]
 description = "boot, ATF16V8C: /BOOT through /RESET and the first 8 completed bus cycles after it"
@@ -66,6 +73,7 @@ connectors = ["DIP20"]
 names = { DIP20 = "boot, 16V8" }
 reference = "U"
 sides = { left = ["DIP20:1-10"], right = ["DIP20:20-11"] }
+body_width = 7.62
 
 [WATCHDOG]
 description = "watchdog, ATF16V8C-7: /BERR 64 clocks into a bus cycle nothing has answered"
@@ -75,6 +83,7 @@ connectors = ["DIP20"]
 names = { DIP20 = "watchdog, 16V8" }
 reference = "U"
 sides = { left = ["DIP20:1-10"], right = ["DIP20:20-11"] }
+body_width = 7.62
 
 [CF_ADAPTER]
 description = "ProtoAdvantage 50-pin CompactFlash breadboard adapter, the card in True IDE mode. Pins numbered as the CF connector's; names as CF 4.1 (DMARQ, -DMACK on 43, 44)"
@@ -82,6 +91,8 @@ repo = "https://github.com/sparkybrit/ic-label-generator"
 label = "defs/cf-breadboard-adapter.json"
 connectors = ["CF"]
 names = { CF = "CompactFlash, True IDE" }
+# As its label (ic-label-generator): pin 50 top left, pin 1 bottom right, pin n beside n + 25.
+sides = { left = ["CF:50-26"], right = ["CF:25-1"] }
 
 [NVRAM_PROGRAMMER]
 description = "In-circuit NVRAM programmer, Teensy++ 2.0: takes the bus with /BR, /BG, /BGACK and writes the DS1250. Pins numbered by Teensy port name"
@@ -89,6 +100,9 @@ repo = "https://github.com/sparkybrit/nvram-programmer"
 pins = "sources/NVRAM_PROGRAMMER.pins"
 connectors = ["TEENSY"]
 names = { TEENSY = "nvram-programmer, Teensy++ 2.0" }
+# Top view, USB end down (nvram-programmer images/teensy-pinout.svg); the PA block of interior
+# pads below the edge rows, as its two columns.
+sides = { left = ["TEENSY:PF7,PF6,PF5,PF4,PF3,PF2,PF1,PF0,AREF,GND1,PE6,PE7,PB0,PB1,PB2,PB3,PB4,PB5,PB6,VCC", "interior pads|TEENSY:PA3,PA2,PA1,PA0"], right = ["TEENSY:PC7,PC6,PC5,PC4,PC3,PC2,PC1,PC0,PE1,PE0,PD7,PD6,PD5,PD4,PD3,PD2,PD1,PD0,PB7,GND2", "TEENSY:PA7,PA6,PA5,PA4"] }
 
 [ROM_RAM_ADAPTER]
 description = "ROM/RAM breadboard adapter: the DS1250AB-70 NVRAM sits in U1, the wide 32-pin socket drawn for an SST39SF040 flash; U2 (CY7C199, narrow DIP-28) is not fitted. Pin names are the board's, for the flash: U1 pin 29, the DS1250's /WE, is J1's A14, and pin 31, its A15, is J2's ROMWE (A14/A15 also swap on pin 3)"
@@ -105,6 +119,8 @@ repo = "https://github.com/sparkybrit/ic-label-generator"
 label = "defs/xp68c681-breadboard-adapter.json"
 connectors = ["PLCC44"]
 names = { PLCC44 = "XR68C681, PLCC-44" }
+# As its label (ic-label-generator): numbered as the PLCC, 1-22 down the left, 23-44 up the right.
+sides = { left = ["PLCC44:1-22"], right = ["PLCC44:44-23"] }
 
 [POWER_CLOCK]
 description = "Perfboard power and clock module: 12 V barrel jack, power switch, SR10S05 5 V regulator, CO12100-16.000 16 MHz oscillator, MCP130-485 reset supervisor, reset button, power LED"

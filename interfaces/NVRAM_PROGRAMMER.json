@@ -2,7 +2,7 @@
   "module": "NVRAM_PROGRAMMER",
   "repo": "https://github.com/sparkybrit/nvram-programmer",
   "source": "sources/NVRAM_PROGRAMMER.pins",
-  "commit": "6ded286",
+  "commit": "bb643db",
   "connectors": [
     {"ref": "TEENSY", "pins": [
       ["PD0", "A0", "tri_state"],
@@ -44,7 +44,15 @@
       ["PE6", "~{RESET}", "open_collector"],
       ["PE7", "~{BG}", "input"],
       ["VCC", "+5V", "power_in"],
-      ["GND", "GND", "power_in"]
+      ["GND1", "GND", "power_in"],
+      ["GND2", "GND", "power_in"],
+      ["AREF", "AREF", "passive"],
+      ["PB3", "NC", "no_connect"],
+      ["PB4", "NC", "no_connect"],
+      ["PB7", "NC", "no_connect"],
+      ["PA1", "NC", "no_connect"],
+      ["PA6", "NC", "no_connect"],
+      ["PA7", "NC", "no_connect"]
     ]}
   ]
 }
