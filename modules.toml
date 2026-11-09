@@ -7,11 +7,11 @@
 #   connectors   the references of the connectors that make up its interface,
 #                in unit order (unit A is the first)
 #   names        optional {connector = text} shown inside each unit
-#   sides        optional {left = [...], right = [...]}: draw every connector in
-#                one body instead of a unit each, the connectors down each side
-#                in the order given, as they sit on the board
-#   reversed     optional [connectors] drawn last pin first, for a header that
-#                runs the other way on the board from the one facing it
+#   sides        optional {left = [...], right = [...]}: draw the module as one
+#                body with its pins down each side, top to bottom, as they sit on
+#                the board (its PCB as drawn, turned a quarter-turn clockwise).
+#                An entry is a connector, its pins in order, or CONN:FIRST-LAST
+#                for a run of them in that order (DIP24:24-13, J1:40-1)
 
 [SRAM_ADAPTER]
 description = "8 MB SRAM breadboard adapter: eight LY62W10248 (1M x 8) in two banks of four. J0 address and control, J1 data"
@@ -19,9 +19,8 @@ repo = "https://github.com/sparkybrit/sram-breadboard-adapter"
 schematic = "sram-breadboard-adaptor.kicad_sch"
 connectors = ["J0", "J1"]
 names = { J0 = "J0 address, control", J1 = "J1 data" }
-# J0 and J1 face each other along the long edges, running opposite ways: J1 pin 1 faces J0 pin 40.
-sides = { left = ["J1"], right = ["J0"] }
-reversed = ["J0"]
+# J0 and J1 run opposite ways along the long edges: +5V at the top of both, GND at the bottom.
+sides = { left = ["J0"], right = ["J1:40-1"] }
 
 [CPU_ADAPTER]
 description = "MC68030 PGA-to-breadboard adapter, v1.0. J1 address, J2 data, J3 and J4 control (bus arbitration, sizing, cache, interrupts)"
@@ -30,7 +29,7 @@ schematic = "68030-breadboard.kicad_sch"
 connectors = ["J1", "J2", "J3", "J4"]
 names = { J1 = "J1 address", J2 = "J2 data", J3 = "J3 control", J4 = "J4 control" }
 # Two 52-pin rows on the board: J2 then J3 (D0 first), J1 then J4 (A0 first).
-sides = { left = ["J2", "J3"], right = ["J1", "J4"] }
+sides = { left = ["J1", "J4"], right = ["J2", "J3"] }
 
 [BUSDECODER]
 description = "busdecoder, ATF22V10C: address decode, chip selects, /CIIN, /IACK, /DSACK0 and /DSACK1"
@@ -39,6 +38,7 @@ pld = "plds/busdecoder/busdecoder.pld"
 connectors = ["DIP24"]
 names = { DIP24 = "busdecoder, 22V10" }
 reference = "U"
+sides = { left = ["DIP24:1-12"], right = ["DIP24:24-13"] }
 
 [SRAMMANAGER]
 description = "srammanager, ATF22V10C: the eight SRAM chip selects /CSA0-/CSB3, from /SRAMCS, A22, A1, A0, SIZ1, SIZ0, R/W and /DS"
@@ -47,6 +47,7 @@ pld = "plds/srammanager/srammanager.pld"
 connectors = ["DIP24"]
 names = { DIP24 = "srammanager, 22V10" }
 reference = "U"
+sides = { left = ["DIP24:1-12"], right = ["DIP24:24-13"] }
 
 [CFMANAGER]
 description = "cfmanager, ATF22V10C: CompactFlash wait states, /IORD and /IOWR, its /DSACK0 and /DSACK1, and -CS1"
@@ -55,6 +56,7 @@ pld = "plds/cfmanager/cfmanager.pld"
 connectors = ["DIP24"]
 names = { DIP24 = "cfmanager, 22V10" }
 reference = "U"
+sides = { left = ["DIP24:1-12"], right = ["DIP24:24-13"] }
 
 [BOOT]
 description = "boot, ATF16V8C: /BOOT through /RESET and the first 8 completed bus cycles after it"
@@ -63,6 +65,7 @@ pld = "plds/boot/boot.pld"
 connectors = ["DIP20"]
 names = { DIP20 = "boot, 16V8" }
 reference = "U"
+sides = { left = ["DIP20:1-10"], right = ["DIP20:20-11"] }
 
 [WATCHDOG]
 description = "watchdog, ATF16V8C-7: /BERR 64 clocks into a bus cycle nothing has answered"
@@ -71,6 +74,7 @@ pld = "plds/watchdog/watchdog.pld"
 connectors = ["DIP20"]
 names = { DIP20 = "watchdog, 16V8" }
 reference = "U"
+sides = { left = ["DIP20:1-10"], right = ["DIP20:20-11"] }
 
 [CF_ADAPTER]
 description = "ProtoAdvantage 50-pin CompactFlash breadboard adapter, the card in True IDE mode. Pins numbered as the CF connector's; names as CF 4.1 (DMARQ, -DMACK on 43, 44)"
@@ -92,8 +96,8 @@ repo = "https://github.com/sparkybrit/rom-ram-breadboard-adapter"
 schematic = "flash-breadboard-adaptor.kicad_sch"
 connectors = ["J1", "J2"]
 names = { J1 = "J1 address", J2 = "J2 data, control" }
-# J1 and J2 face each other, running the same way.
-sides = { left = ["J2"], right = ["J1"] }
+# J1 and J2 run the same way, pin 1 at the bottom: A0 bottom right.
+sides = { left = ["J2:20-1"], right = ["J1:20-1"] }
 
 [DUART]
 description = "Exar XR68C681 DUART (MC68681-compatible), 44-pin PLCC on a 44-pin breadboard adapter numbered as the PLCC: console, timer, interrupt at level 5"
@@ -117,6 +121,7 @@ pins = "sources/RESISTOR_ADAPTER_8.pins"
 connectors = ["DIP16"]
 reference = "RN"
 names = { DIP16 = "8 x R, DIP-16" }
+sides = { left = ["DIP16:1-8"], right = ["DIP16:16-9"] }
 
 [USB_UART]
 description = "Console: FTDI UB232R USB-to-UART module (FT232RQ), /dev/ttyUSB0. Pins numbered by its silkscreen; VCC (USB 5 V) feeds only an LED, not the board's rail"
@@ -124,3 +129,5 @@ repo = "https://github.com/sparkybrit/sparky1-modules"
 pins = "sources/USB_UART.pins"
 connectors = ["UB232R"]
 names = { UB232R = "UB232R, USB-UART" }
+# J1-1..J1-4 along one edge, J2-1..J2-4 (pins 8-5) opposite, as a DIP.
+sides = { left = ["UB232R:1-4"], right = ["UB232R:8-5"] }

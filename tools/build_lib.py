@@ -125,25 +125,52 @@ def pin_node(etype, x, y, angle, number, pname):
 
 
 def build_sided(name, mod, iface):
-    """Every connector in one body, down the two sides as on the board.
+    """The module in one body, its pins down the two sides as on the board.
 
-    Each connector is headed by its name and followed by its pins, so headers
-    that face each other on the board read straight across."""
+    Each run of pins follows a heading row, which names its connector the first
+    time it appears, so pins that face each other on the board read straight
+    across."""
     conns = {c['ref']: c for c in iface['connectors']}
-    sides = mod['sides']
-    placed = [r for s in ('left', 'right') for r in sides.get(s, [])]
-    if sorted(placed) != sorted(conns):
-        sys.exit('%s: sides %s do not list each connector %s once'
-                 % (name, placed, list(conns)))
+    multi = len(conns) > 1
     labels = mod.get('names', {})
-    rev = set(mod.get('reversed', []))
+
+    def run(entry):
+        """(connector, its pins) for one sides entry: CONN or CONN:FIRST-LAST."""
+        ref, _, span = entry.partition(':')
+        if ref not in conns:
+            sys.exit('%s: sides entry %r names no connector of %s' % (name, entry, list(conns)))
+        pins = conns[ref]['pins']
+        if not span:
+            return ref, pins
+        by_num = {p[0]: p for p in pins}
+        a, _, b = span.partition('-')
+        try:
+            a, b = int(a), int(b)
+        except ValueError:
+            sys.exit('%s: sides entry %r: give CONN:FIRST-LAST' % (name, entry))
+        step = 1 if b >= a else -1
+        nums = [str(n) for n in range(a, b + step, step)]
+        missing = [n for n in nums if n not in by_num]
+        if missing:
+            sys.exit('%s: sides entry %r: %s has no pin %s' % (name, entry, ref, missing))
+        return ref, [by_num[n] for n in nums]
+
+    sides = mod['sides']
+    runs = {s: [run(e) for e in sides.get(s, [])] for s in ('left', 'right')}
+    placed = [(ref, p[0]) for s in runs.values() for ref, ps in s for p in ps]
+    every = [(c['ref'], p[0]) for c in iface['connectors'] for p in c['pins']]
+    if sorted(placed) != sorted(every):
+        sys.exit('%s: sides must place every pin once: %s placed, %d pins'
+                 % (name, len(placed), len(every)))
+
+    headed = set()
 
     def rows(side):
-        out = []          # (heading text) or (number, name, type)
-        for ref in sides.get(side, []):
-            pins = conns[ref]['pins'][::-1] if ref in rev else conns[ref]['pins']
-            out.append(labels.get(ref, ref))
-            out += [('%s.%s' % (ref, n), pn, et) for n, pn, et in pins]
+        out = []          # heading text ('' after the connector's first run), or a pin
+        for ref, pins in runs[side]:
+            out.append('' if ref in headed else labels.get(ref, ref))
+            headed.add(ref)
+            out += [('%s.%s' % (ref, n) if multi else n, pn, et) for n, pn, et in pins]
         return out
 
     left, right = rows('left'), rows('right')
@@ -178,6 +205,8 @@ def build_sided(name, mod, iface):
         for i, r in enumerate(rs):
             y = top - i * GRID
             if isinstance(r, str):
+                if not r:
+                    continue
                 body.append(['text', Str(r),
                              ['at', fmt(sign * (half_w - GRID)), fmt(y), '0'],
                              ['effects', ['font', ['size', fmt(FONT), fmt(FONT)], ['bold', 'yes']],

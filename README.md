@@ -4,11 +4,11 @@ KiCad interface symbols for the modules that make up
 [Sparky1](https://github.com/sparkybrit/sparky1), the MC68030 breadboard computer.
 
 Each module - a breadboard adapter, a PLD, a bought-in board - is one symbol, with one unit per connector
-(a PLD's one "connector" is its own pins). A module whose `modules.toml` entry has `sides` is drawn as
-one body instead, its connectors down the left and right as they sit on the board, each headed by its
-name; `reversed` draws a connector last pin first, where it runs the other way from the one facing it.
-The CPU adapter is drawn this way (J2 and J3 down the left, J1 and J4 down the right, as its two
-52-pin rows), and so are the SRAM and ROM/RAM adapters and the power and clock module.
+(a PLD's one "connector" is its own pins). Every module whose `modules.toml` entry has `sides` is drawn
+as one body instead, its pins down the left and right as they sit on the board (its PCB as drawn, turned a
+quarter-turn clockwise); an entry is a whole connector or a run of its pins, `CONN:FIRST-LAST`. So the
+CPU adapter has J1 and J4 (address) down the left and J2 and J3 (data) down the right, as its two
+52-pin rows; a DIP has pins 1 to N/2 down the left and the rest back up the right.
 A pin's **number** is the connector pin and its **name** is the module's own signal name. On a module
 with several connectors the number is `CONN.N` (`J1.8`): KiCad takes pins with the same number on
 different units to be one pin, and would join J1 pin 1 to J2 pin 1, and one body needs them unique
