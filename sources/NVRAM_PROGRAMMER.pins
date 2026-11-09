@@ -4,6 +4,10 @@
 # Bus pins are tri_state: released whenever the programmer does not own the bus. /RESET is
 # open drain (DDR toggled). Powered from the SBC 5 V (USB power trace cut).
 # PD6 (A6) also carries the Teensy LED to ground: see sparky1 CLAUDE.md, To Do.
+# Every pad of the two edge rows and the PA block is listed, the unused ones NC, so the symbol
+# can draw them where they are (nvram-programmer images/teensy-pinout.svg, top view, USB end
+# down). The two edge GND pads are GND1 (left edge, beside AREF) and GND2 (right edge, by PB7).
+# The other interior pads (PE4, PE5, ALE and the rest) are not drawn there and not listed.
 #
 # pin  name  type
 PD0 A0 tri_state
@@ -45,4 +49,12 @@ PE1 ~{BGACK} output
 PE6 ~{RESET} open_collector
 PE7 ~{BG} input
 VCC +5V power_in
-GND GND power_in
+GND1 GND power_in
+GND2 GND power_in
+AREF AREF passive
+PB3 NC no_connect
+PB4 NC no_connect
+PB7 NC no_connect
+PA1 NC no_connect
+PA6 NC no_connect
+PA7 NC no_connect
