@@ -106,10 +106,19 @@ def pin_key(number):
 
 def read_netlist(schematic):
     """{ref: {pin number: raw net name}} for every component, and the sheet paths."""
+    # kicad-cli rewrites the project's .kicad_prl (local settings, which some repos
+    # track); put it back as it was, so reading a schematic never dirties its repo.
+    prl = os.path.splitext(schematic)[0] + '.kicad_prl'
+    saved = open(prl, 'rb').read() if os.path.exists(prl) else None
     with tempfile.TemporaryDirectory() as tmp:
         out = os.path.join(tmp, 'net.xml')
-        r = subprocess.run(['kicad-cli', 'sch', 'export', 'netlist', '--format', 'kicadxml',
-                            '-o', out, schematic], capture_output=True, text=True)
+        try:
+            r = subprocess.run(['kicad-cli', 'sch', 'export', 'netlist', '--format', 'kicadxml',
+                                '-o', out, schematic], capture_output=True, text=True)
+        finally:
+            if saved is not None:
+                with open(prl, 'wb') as fh:
+                    fh.write(saved)
         if r.returncode != 0 or not os.path.exists(out):
             sys.exit('kicad-cli failed on %s:\n%s%s' % (schematic, r.stdout, r.stderr))
         tree = ET.parse(out)
