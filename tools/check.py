@@ -1,12 +1,13 @@
-"""Check that the library still matches the modules.
+"""Check that a project's library still matches its modules' sources.
 
-    uv run tools/check.py                         # library against interfaces/, every module
-    uv run tools/check.py MODULE REPO [...]       # and each MODULE against its own schematic
+    uv run tools/check.py [-C DIR]                  # library, and every module with a path
+    uv run tools/check.py [-C DIR] MODULE REPO [...] # and each MODULE against a checkout
 
 The library must be exactly what build_lib.py generates from interfaces/, and the
-pins read back out of it must match those files. Given a module's repo, its
-connector nets are read afresh from its schematic and must match its interface
-file pin for pin. Exits 1 on any difference, naming each pin.
+pins read back out of it must match those files. Each module with a `path` (and
+each MODULE given with a checkout) has its pins read afresh from its source, which
+must match its interface file pin for pin. Exits 1 on any difference, naming each
+pin.
 """
 import argparse
 import os
@@ -73,16 +74,16 @@ def as_pairs(iface):
     return [(c['ref'], [tuple(p) for p in c['pins']]) for c in iface['connectors']]
 
 
-def check_library():
+def check_library(project):
     errs = []
-    lib = build_lib.OUT
+    lib = project.lib_path
     if not os.path.exists(lib):
         return ['%s does not exist; run make' % os.path.basename(lib)]
-    if open(lib).read() != build_lib.build():
+    if open(lib).read() != build_lib.build(project):
         errs.append('%s is not what build_lib.py generates: edited by hand, or not rebuilt '
                     'after an interface changed; run make' % os.path.basename(lib))
     pins = library_pins(lib)
-    reg = extract.registry()
+    reg = project.modules
     for name in sorted(set(reg) | set(pins)):
         if name not in pins:
             errs.append('library has no symbol %s' % name)
@@ -90,7 +91,7 @@ def check_library():
         if name not in reg:
             errs.append('library has symbol %s, which modules.toml does not list' % name)
             continue
-        iface = extract.load(name)
+        iface = project.load(name)
         refs = [c['ref'] for c in iface['connectors']]
         got = pins[name]
         if got[0][0] is None:
@@ -105,9 +106,9 @@ def check_library():
     return errs
 
 
-def check_module(name, repo):
-    iface = extract.load(name)
-    fresh = extract.extract(name, repo)
+def check_module(project, name, repo=None):
+    iface = project.load(name)
+    fresh = extract.extract(project, name, repo)
     errs = compare('%s (%s at %s)' % (name, fresh['source'], fresh['commit']),
                    as_pairs(iface), as_pairs(fresh))
     note = None
@@ -120,14 +121,19 @@ def check_module(name, repo):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument('-C', dest='dir', default='.', help='the directory holding modules.toml')
     ap.add_argument('pairs', nargs='*', metavar='MODULE REPO')
     args = ap.parse_args()
     if len(args.pairs) % 2:
         ap.error('give MODULE REPO in pairs')
-    errs = check_library()
+    project = extract.Project(args.dir)
+    errs = check_library(project)
     checked = []
-    for name, repo in zip(args.pairs[::2], args.pairs[1::2]):
-        e, note = check_module(name, repo)
+    todo = [(n, None) for n, m in project.modules.items() if 'path' in m or 'stock' in m]
+    given = list(zip(args.pairs[::2], args.pairs[1::2]))
+    todo = [t for t in todo if t[0] not in dict(given)] + given
+    for name, repo in todo:
+        e, note = check_module(project, name, repo)
         errs += e
         checked.append(name)
         if note:

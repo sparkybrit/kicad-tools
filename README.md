@@ -1,81 +1,111 @@
-# sparky1-modules
+# kicad-tools
 
-KiCad interface symbols for the modules that make up
-[Sparky1](https://github.com/sparkybrit/sparky1), the MC68030 breadboard computer.
+Tools for drawing a system made of modules in KiCad 10. A module can be a board with its own KiCad
+project, a PLD, a bought-in board or a labelled breadboard adapter. Each module is drawn as one
+**interface symbol**:
 
-Each module - a breadboard adapter, a PLD, a bought-in board - is one symbol, with one unit per connector
-(a PLD's one "connector" is its own pins). Every module whose `modules.toml` entry has `sides` is drawn
-as one body instead, its pins down the left and right as they sit on the board (its PCB as drawn, turned a
-quarter-turn clockwise); an entry is a whole connector or a run of its pins, `CONN:FIRST-LAST`. So the
-CPU adapter has J1 and J4 (address) down the left and J2 and J3 (data) down the right, as its two
-52-pin rows; a DIP has pins 1 to N/2 down the left and the rest back up the right.
-A pin's **number** is the connector pin and its **name** is the module's own signal name. On a module
-with several connectors the number is `CONN.N` (`J1.8`): KiCad takes pins with the same number on
-different units to be one pin, and would join J1 pin 1 to J2 pin 1, and one body needs them unique
-anyway. The interface files keep the bare number. The system
-schematic in `sparky1` places these symbols and draws only the wiring between them; it never redraws a
-module's insides. The reasoning is in sparky1's `KICAD_MODULES.md`.
+- the symbol's pins are the module's connector pins, read from the module's own source;
+- the system schematic places these symbols and draws only the wiring between them.
+
+The symbol is generated, so it cannot drift from the source, and a check fails if it has.
+
+Written for [Sparky1](https://github.com/sparkybrit/sparky1), the MC68030 breadboard computer, whose
+`KICAD_MODULES.md` has the reasoning. Nothing in the tools is specific to it.
+
+## How it is used
+
+Each repo that defines modules:
+
+- keeps a **project directory**, by convention `module/`, holding:
+  - `modules.toml`, which names the library and describes each module;
+  - `interfaces/`, generated;
+  - the library `<library>.kicad_sym`, generated;
+- has this repo as a git submodule at `lib/kicad-tools`;
+- has a `Makefile` in the project directory, a single line: `include ../lib/kicad-tools/module.mk`.
+
+```
+make -C module          # re-extract every module that has a path, then rebuild the library
+make -C module lib      # rebuild the library from interfaces/ only
+make -C module check    # fail if the library is not what interfaces/ generate, or if a module's
+                        # source no longer matches its interface file; each difference by pin
+```
+
+So a board repo checks its own symbol: change the schematic, run `make -C module`, and commit the
+schematic, the interface and the symbol together.
+
+A system repo has each module repo as a submodule, pinned to the revision that is actually built, and adds
+each library to its `sym-lib-table`:
+
+```
+(lib (name "sram-breadboard-adapter")(type "KiCad")(uri "${KIPRJMOD}/lib/sram-breadboard-adapter/module/sram-breadboard-adapter.kicad_sym"))
+```
+
+## modules.toml
+
+Top-level keys:
+
+- `library`: the library's name, which is also its file's stem.
+- `keywords`: optional; copied into each symbol's keywords.
+
+Each table is one module, and the table's name is the symbol's name.
+
+| Key | What |
+|---|---|
+| `description` | One line, copied into the symbol's Description |
+| `repo` | The module source's URL, for the record |
+| `path` | Where the source is checked out, relative to the project directory (`..` for the repo the project sits in). Without it, the checkout is given on the command line |
+| `schematic` / `pld` / `label` / `pins` / `stock` | The source, relative to that checkout. Exactly one; see below |
+| `connectors` | The references of the connectors that make up the interface, in order |
+| `names` | Optional `{connector = text}`, shown on the symbol |
+| `reference` | Optional reference prefix; the default is `A` |
+| `sides` | Optional `{left = [...], right = [...]}`: one body with the pins down each side, top to bottom, as they sit on the board (for a PCB, as drawn and turned a quarter-turn clockwise). An entry is a whole connector, `CONN:FIRST-LAST` (a run, either direction: `DIP24:24-13`), or `CONN:P,Q,R`. A `TEXT\|ENTRY` prefix heads that run with `TEXT` |
+| `body_width` | Optional, in mm, with `sides`: draw the body as wide as the package (a 0.3 in DIP is 7.62), the pin names outside it, the numbers just inside its edge and the name down the middle |
+
+Without `sides`, each connector is its own unit.
+
+## Where a module's pins come from
+
+| Key | Source | Pin types |
+|---|---|---|
+| `schematic` | the module's KiCad schematic, through `kicad-cli sch export netlist`: each connector pin is named after its net | passive, power for GND and +5V, NC if unconnected |
+| `pld` | the `PIN` lines of a GAL16V8 or GAL22V10 `.pld`, plus its `Revision`, which goes into the symbol's Value (`BUSDECODER rev 03`) | input, or output if the pin has an equation |
+| `label` | an [ic-label-generator](https://github.com/sparkybrit/ic-label-generator) label definition: names, pin numbers, and the label's input and output lists | from the label |
+| `pins` | a hand-written list, one `number name type` per line. Its header must name the document it came from. `[REF]` starts the next connector | as written |
+| `stock` | a stock KiCad 10 symbol, `Lib:Symbol`, flattened and copied | KiCad's |
+
+Names are cleaned on the way in:
+
+- the sheet path is dropped;
+- an overbar left open is closed (`~{BR` becomes `~{BR}`);
+- an unconnected pin is named `NC`.
+
+A PLD's undeclared pins follow the chip-diagram convention: an unused input-only pin is `IN<n>` (tied low),
+and an unused macrocell pin is `NC`.
+
+Each interface records the source's commit, unless the source is in the same repo as the project directory,
+since then they are versioned together. A `stock` interface records the KiCad version instead, so a KiCad
+update that changes the symbol fails `check` until it is re-extracted on purpose.
+
+## Pin numbers
+
+A pin's **number** is the connector pin, and its **name** is the module's own signal name.
+
+On a module with several connectors, the number is `CONN.N` (`J1.8`). KiCad treats pins with the same
+number on different units as one pin, so plain numbers would join J1 pin 1 to J2 pin 1. A single body
+needs the numbers unique anyway. The interface files keep the bare number.
 
 ## Files
 
 | Path | What |
 |---|---|
-| `sparky1_modules.kicad_sym` | The library, KiCad 10 format. **Generated - do not edit by hand** |
-| `modules.toml` | The modules: each one's repo, schematic and interface connectors |
-| `interfaces/<MODULE>.json` | Each module's connector pins as read from its own schematic, and the commit they came from |
-| `tools/extract.py` | Reads a module's interface from its source (below) |
-| `sources/*.pins` | Hand-transcribed pin lists, each naming the document it came from |
+| `module.mk` | The make targets above, for a project directory to include |
+| `tools/extract.py` | Reads a module's interface from its source into `interfaces/<MODULE>.json` |
 | `tools/build_lib.py` | Builds the library from `interfaces/` |
-| `tools/check.py` | Fails if the library is not what `build_lib.py` generates, or if a module's schematic no longer matches its interface file |
-| `tools/sexp.py`, `tools/symlib.py` | S-expression and symbol-library helpers, from sparky1-backplane |
+| `tools/check.py` | The check above |
+| `tools/kisch.py` | Writes schematic sheets, for a system repo's generator |
+| `tools/sexp.py`, `tools/symlib.py` | S-expression and symbol-library helpers |
 
-## Where each module's pins come from
+Every tool takes `-C DIR` for the project directory; the default is the current directory.
 
-Each module in `modules.toml` names one source:
-
-| Key | Source | Checked against | Modules |
-|---|---|---|---|
-| `schematic` | the module's own KiCad schematic, through `kicad-cli sch export netlist` | that schematic | SRAM_ADAPTER, CPU_ADAPTER, ROM_RAM_ADAPTER |
-| `pld` | the `PIN` lines of a `.pld`, with its equations deciding input or output | that `.pld` | BUSDECODER, SRAMMANAGER, CFMANAGER, BOOT, WATCHDOG |
-| `label` | the part's label in [ic-label-generator](https://github.com/sparkybrit/ic-label-generator) (`defs/*.json`), the one it is wired by: names, pin numbers, and input or output from the label's lists | that label | CF_ADAPTER, DUART |
-| `pins` | a pin list in `sources/`, transcribed from a datasheet or document | the file only | NVRAM_PROGRAMMER, RESISTOR_ADAPTER_8, POWER_CLOCK, USB_UART |
-| `stock` | a stock KiCad 10 symbol, flattened and renamed into this library | the installed KiCad library | none at present |
-
-A `stock` module's interface records the KiCad version it was copied from; if a KiCad update changes the stock
-symbol, `make check` fails until it is re-extracted on purpose.
-
-## Using it
-
-Projects pull this repo in as a git submodule and add the library to their `sym-lib-table`:
-
-```
-(lib (name "sparky1_modules")(type "KiCad")(uri "${KIPRJMOD}/lib/sparky1-modules/sparky1_modules.kicad_sym")(options "")(descr ""))
-```
-
-## Changing a module's interface
-
-Change the module's own schematic and commit it, then here:
-
-```
-uv run --no-project python -I tools/extract.py MODULE ../path/to/module-repo
-make
-```
-
-Commit the new `interfaces/MODULE.json` and library together. Names are cleaned on the way in: the sheet
-path goes, an overbar left unclosed in the source is closed (`~{BR` becomes `~{BR}`), and an unconnected
-pin is `NC`. A PLD's undeclared pins follow sparky1's chip-diagram convention: an unused input-only pin is
-`IN<n>` (tied low on the board), an unused macrocell pin `NC`. Its pins are typed `input` or `output` (an output
-is a pin with an equation), so ERC can check them; a board's signal pins are `passive`.
-
-## Checking
-
-```
-make check                                     # library against interfaces/
-uv run --no-project python -I tools/check.py SRAM_ADAPTER ../sram-breadboard-adapter BUSDECODER ../sparky1 DUART ../ic-label-generator
-                                               # and each MODULE against its source
-```
-
-Each difference is reported by connector and pin, and the exit status is 1. Run the second form in a module's
-repo before committing a change to its connectors.
-
-Requires KiCad 10 (`kicad-cli`) and uv.
+Requires KiCad 10 (`kicad-cli`) and [uv](https://docs.astral.sh/uv/). Run the tools with
+`uv run --no-project python -I tools/<tool>.py`.

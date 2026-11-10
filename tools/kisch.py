@@ -103,7 +103,7 @@ class Placement:
 
 class Sheet:
     def __init__(self, project, filename, title, libs, paper='A3',
-                 rev='A', company='', comments=(), generator='sparky1-modules'):
+                 rev='A', company='', comments=(), generator='kicad-tools'):
         """libs: {nickname: symlib.Library}."""
         self.project, self.filename, self.title = project, filename, title
         self.libs, self.paper, self.rev = libs, paper, rev

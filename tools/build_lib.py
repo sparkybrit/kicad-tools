@@ -1,6 +1,9 @@
-"""Build sparky1_modules.kicad_sym from interfaces/*.json.
+"""Build a project's module library from its interfaces/*.json.
 
-    uv run tools/build_lib.py
+    uv run tools/build_lib.py [-C DIR]
+
+DIR (default .) holds modules.toml, which names the library: the result is
+DIR/<library>.kicad_sym.
 
 One symbol per module, one unit per connector, or one body with the connectors
 down its two sides when modules.toml gives the module `sides`. Each pin's number
@@ -10,6 +13,7 @@ schematic wires modules together exactly as the breadboard does. The library
 is generated: edit modules.toml or re-extract an interface, never the
 .kicad_sym by hand.
 """
+import argparse
 import math
 import os
 import sys
@@ -19,8 +23,6 @@ sys.path.insert(0, HERE)
 from sexp import dumps, Str
 import extract
 
-ROOT = extract.ROOT
-OUT = os.path.join(ROOT, 'sparky1_modules.kicad_sym')
 
 # KiCad 10's symbol library format, as sparky1-backplane uses.
 LIB_VERSION = 20251024
@@ -53,6 +55,16 @@ def prop(name, value, x=0.0, y=0.0, hide=False, justify=None):
     return node
 
 
+def describe(mod, iface):
+    at = '' if iface['commit'] == 'this repo' else ' at %s' % iface['commit']
+    return '%s Source: %s, %s%s.' % (mod['description'], iface['repo'], iface['source'], at)
+
+
+def value(name, iface):
+    """The symbol's Value: its name, and a PLD's revision, so the sheet says which part."""
+    return '%s rev %s' % (name, iface['revision']) if 'revision' in iface else name
+
+
 def shown_len(name):
     """Characters as drawn: overbar markup takes no width."""
     return len(name.replace('~{', '').replace('}', ''))
@@ -72,19 +84,18 @@ def build_symbol(name, mod, iface):
     body_top = top + 2 * GRID          # room for the connector label
     bottom = top - (max(len(c['pins']) for c in iface['connectors']) - 1) * GRID
     body_bot = bottom - GRID
-    descr = '%s Source: %s, %s at %s.' % (mod['description'], iface['repo'],
-                                          iface['source'], iface['commit'])
+    descr = describe(mod, iface)
     sym = ['symbol', Str(name),
            ['pin_names', ['offset', '1.016']],
            ['exclude_from_sim', 'yes'], ['in_bom', 'no'], ['on_board', 'no'],
            ['in_pos_files', 'no'], ['duplicate_pin_numbers_are_jumpers', 'no'],
            prop('Reference', mod.get('reference', 'A'), -half_w, body_top + GRID, justify='left'),
-           prop('Value', name, -half_w, body_bot - GRID, justify='left'),
+           prop('Value', value(name, iface), -half_w, body_bot - GRID, justify='left'),
            prop('Footprint', '', 0, 0, hide=True),
            prop('Datasheet', iface['repo'], 0, 0, hide=True),
            prop('Description', descr, 0, 0, hide=True),
            prop('Source_Commit', iface['commit'], 0, 0, hide=True),
-           prop('ki_keywords', 'sparky1 module interface', 0, 0, hide=True),
+           prop('ki_keywords', mod['_keywords'], 0, 0, hide=True),
            ]
     labels = mod.get('names', {})
     # KiCad takes pins with the same number on different units to be one pin, so
@@ -202,20 +213,19 @@ def build_sided(name, mod, iface):
     else:
         half_w = snap_up((widest(left) + widest(right)) * CHAR_W / 2 + 2 * GRID)
         body_top, body_bot = top + GRID, top - (n - 1) * GRID - GRID
-    descr = '%s Source: %s, %s at %s.' % (mod['description'], iface['repo'],
-                                          iface['source'], iface['commit'])
+    descr = describe(mod, iface)
     sym = ['symbol', Str(name),
            ['pin_names', ['offset', '0' if package else '1.016']],
            ] + ([['pin_numbers', ['hide', 'yes']]] if package else []) + [
            ['exclude_from_sim', 'yes'], ['in_bom', 'no'], ['on_board', 'no'],
            ['in_pos_files', 'no'], ['duplicate_pin_numbers_are_jumpers', 'no'],
            prop('Reference', mod.get('reference', 'A'), -half_w, body_top + GRID, justify='left'),
-           prop('Value', name, -half_w, body_bot - GRID, justify='left'),
+           prop('Value', value(name, iface), -half_w, body_bot - GRID, justify='left'),
            prop('Footprint', '', 0, 0, hide=True),
            prop('Datasheet', iface['repo'], 0, 0, hide=True),
            prop('Description', descr, 0, 0, hide=True),
            prop('Source_Commit', iface['commit'], 0, 0, hide=True),
-           prop('ki_keywords', 'sparky1 module interface', 0, 0, hide=True),
+           prop('ki_keywords', mod['_keywords'], 0, 0, hide=True),
            ]
     body = ['symbol', Str('%s_1_1' % name),
             ['rectangle', ['start', fmt(-half_w), fmt(body_top)],
@@ -278,14 +288,14 @@ def build_stock(name, mod, iface):
     return out
 
 
-def build():
-    reg = extract.registry()
+def build(project):
+    reg = {n: dict(m, _keywords=project.keywords) for n, m in project.modules.items()}
     syms = []
     for name in sorted(reg):
-        path = extract.iface_path(name)
+        path = project.iface_path(name)
         if not os.path.exists(path):
-            sys.exit('%s: no interface yet; run tools/extract.py %s <repo>' % (name, name))
-        iface = extract.load(name)
+            sys.exit('%s: no interface yet; run tools/extract.py %s' % (name, name))
+        iface = project.load(name)
         refs = [c['ref'] for c in iface['connectors']]
         if refs != reg[name]['connectors']:
             sys.exit('%s: interface has connectors %s, modules.toml says %s; re-extract'
@@ -298,16 +308,20 @@ def build():
             syms.append(build_symbol(name, reg[name], iface))
     root = ['kicad_symbol_lib',
             ['version', str(LIB_VERSION)],
-            ['generator', Str('sparky1-modules/tools/build_lib.py')],
+            ['generator', Str('kicad-tools/tools/build_lib.py')],
             ['generator_version', Str('10.0')]] + syms
     return dumps(root) + '\n'
 
 
 def main():
-    text = build()
-    with open(OUT, 'w') as fh:
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument('-C', dest='dir', default='.', help='the directory holding modules.toml')
+    project = extract.Project(ap.parse_args().dir)
+    text = build(project)
+    with open(project.lib_path, 'w') as fh:
         fh.write(text)
-    print('wrote %s' % os.path.relpath(OUT, ROOT))
+    print('wrote %s' % project.rel(project.lib_path))
 
 
 if __name__ == '__main__':

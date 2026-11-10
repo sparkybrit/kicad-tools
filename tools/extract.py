@@ -1,11 +1,15 @@
 """Read a module's interface - its connector pins - from its own source.
 
 A board module's comes from its KiCad schematic; a PLD's from the PIN lines of
-its .pld.
+its .pld; others from a label definition, a hand-written pin list or a stock
+KiCad symbol.
 
-    uv run tools/extract.py MODULE PATH_TO_MODULE_REPO
+    uv run tools/extract.py [-C DIR] MODULE [SOURCE_CHECKOUT]
+    uv run tools/extract.py [-C DIR] --all
 
-writes interfaces/MODULE.json. The netlist comes from `kicad-cli sch export
+DIR (default .) holds the modules.toml; the result is DIR/interfaces/MODULE.json.
+The source checkout defaults to the module's `path` in modules.toml. --all
+extracts every module that has one. The netlist comes from `kicad-cli sch export
 netlist`, so what is recorded is what the module's schematic actually connects,
 not what anyone remembers. check.py uses the same reader to compare.
 """
@@ -21,24 +25,59 @@ import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-ROOT = os.path.dirname(HERE)
-REGISTRY = os.path.join(ROOT, 'modules.toml')
-IFACE_DIR = os.path.join(ROOT, 'interfaces')
 
 POWER = {'GND', '+5V'}
 NC = 'NC'
 
 
-def registry():
-    with open(REGISTRY, 'rb') as fh:
-        return tomllib.load(fh)
+class Project:
+    """A directory of module interfaces: DIR/modules.toml, DIR/interfaces/, and
+    the library build_lib.py makes from them, DIR/<library>.kicad_sym.
 
+    modules.toml's top-level keys are the library's `library` (its name, and so
+    its file's stem) and optional `keywords`; every table is a module.
+    """
 
-def module(name):
-    reg = registry()
-    if name not in reg:
-        sys.exit('%s: no module %r (have: %s)' % (REGISTRY, name, ', '.join(reg)))
-    return reg[name]
+    def __init__(self, root='.'):
+        self.root = os.path.abspath(root)
+        self.toml = os.path.join(self.root, 'modules.toml')
+        if not os.path.exists(self.toml):
+            sys.exit('no modules.toml in %s' % self.root)
+        with open(self.toml, 'rb') as fh:
+            data = tomllib.load(fh)
+        if 'library' not in data:
+            sys.exit('%s: no top-level library = "<name>"' % self.toml)
+        self.library = data['library']
+        self.keywords = data.get('keywords', 'module interface')
+        self.modules = {k: v for k, v in data.items() if isinstance(v, dict)}
+        self.iface_dir = os.path.join(self.root, 'interfaces')
+        self.lib_path = os.path.join(self.root, self.library + '.kicad_sym')
+
+    def module(self, name):
+        if name not in self.modules:
+            sys.exit('%s: no module %r (have: %s)' % (self.toml, name, ', '.join(self.modules)))
+        return self.modules[name]
+
+    def source_root(self, name, given=None):
+        """Where module `name`'s source is checked out: as given, or its `path`."""
+        if given:
+            return given
+        mod = self.module(name)
+        if 'path' not in mod:
+            if 'stock' in mod:
+                return self.root
+            sys.exit('%s: no path in modules.toml; give its checkout' % name)
+        return os.path.normpath(os.path.join(self.root, mod['path']))
+
+    def iface_path(self, name):
+        return os.path.join(self.iface_dir, name + '.json')
+
+    def load(self, name):
+        with open(self.iface_path(name)) as fh:
+            return json.load(fh)
+
+    def rel(self, path):
+        return os.path.relpath(path, os.getcwd())
 
 
 def normalise(net, sheets=('/',)):
@@ -87,14 +126,22 @@ def kicad_version():
     return r.stdout.strip() or 'unknown'
 
 
+def git(repo, *args):
+    return subprocess.run(['git', '-C', repo] + list(args),
+                          capture_output=True, text=True).stdout.strip()
+
+
 def git_commit(repo, path):
     """The last commit to touch `path`, and whether the file has uncommitted changes."""
-    def git(*args):
-        return subprocess.run(['git', '-C', repo] + list(args),
-                              capture_output=True, text=True).stdout.strip()
-    commit = git('log', '-1', '--format=%h', '--', path) or 'untracked'
-    dirty = bool(git('status', '--porcelain', '--', path))
+    commit = git(repo, 'log', '-1', '--format=%h', '--', path) or 'untracked'
+    dirty = bool(git(repo, 'status', '--porcelain', '--', path))
     return commit, dirty and commit != 'untracked'
+
+
+def same_repo(a, b):
+    top = lambda d: git(d, 'rev-parse', '--show-toplevel')
+    ta = top(a)
+    return bool(ta) and ta == top(b)
 
 
 def default_type(name):
@@ -131,6 +178,7 @@ GAL = {
 }
 PLD_PIN = re.compile(r'^\s*PIN\s+(\d+)\s*=\s*(!?)\s*([A-Za-z_][A-Za-z0-9_]*)\s*;', re.I | re.M)
 PLD_DEVICE = re.compile(r'^\s*Device\s+(\w+)\s*;', re.I | re.M)
+PLD_REVISION = re.compile(r'^\s*Revision\s+([^;\s]+)\s*;', re.I | re.M)
 
 
 def strip_comments(text):
@@ -185,7 +233,8 @@ def connectors_from_pld(name, mod, repo):
             pins.append([str(num), 'IN%d' % num, 'input'])
         else:
             pins.append([str(num), NC, 'no_connect'])
-    return mod['pld'], [{'ref': mod['connectors'][0], 'pins': pins}]
+    rev = PLD_REVISION.search(text)
+    return mod['pld'], [{'ref': mod['connectors'][0], 'pins': pins}], rev and rev.group(1)
 
 
 TYPES = {'input', 'output', 'bidirectional', 'tri_state', 'passive', 'free', 'unspecified',
@@ -299,40 +348,49 @@ def connectors_from_label(name, mod, repo):
     return mod['label'], [{'ref': mod['connectors'][0], 'pins': pins}]
 
 
-def extract(name, repo):
-    """The interface of module `name`, read from the checkout at `repo`."""
-    mod = module(name)
+def extract(project, name, repo=None):
+    """The interface of module `name`, read from the checkout at `repo`.
+
+    The source's commit is recorded when it lives in another repo; a source in
+    the project's own repo is versioned with it, so its commit is not."""
+    mod = project.module(name)
+    repo = project.source_root(name, repo)
+    revision = None
     if 'label' in mod:
         source, connectors = connectors_from_label(name, mod, repo)
     elif 'stock' in mod:
         source, connectors = connectors_from_stock(name, mod, repo)
-        return {'module': name, 'repo': mod['repo'], 'source': source,
+        return {'module': name, 'repo': mod.get('repo', ''), 'source': source,
                 'commit': 'KiCad ' + kicad_version(), 'connectors': connectors}
     elif 'pins' in mod:
         source, connectors = connectors_from_pins(name, mod, repo)
     elif 'pld' in mod:
-        source, connectors = connectors_from_pld(name, mod, repo)
+        source, connectors, revision = connectors_from_pld(name, mod, repo)
     else:
         source, connectors = connectors_from_schematic(name, mod, repo)
-    commit, dirty = git_commit(repo, source)
-    return {
+    if same_repo(project.root, repo):
+        commit = 'this repo'
+    else:
+        commit, dirty = git_commit(repo, source)
+        commit += '-dirty' if dirty else ''
+    iface = {
         'module': name,
-        'repo': mod['repo'],
+        'repo': mod.get('repo', ''),
         'source': source,
-        'commit': commit + ('-dirty' if dirty else ''),
+        'commit': commit,
         'connectors': connectors,
     }
-
-
-def iface_path(name):
-    return os.path.join(IFACE_DIR, name + '.json')
+    if revision:
+        iface['revision'] = revision    # a PLD's Revision line: which part is on the board
+    return iface
 
 
 def dump(iface):
     """JSON with one pin per line, so a diff names the pin that changed."""
     lines = ['{']
-    for key in ('module', 'repo', 'source', 'commit'):
-        lines.append('  %s: %s,' % (json.dumps(key), json.dumps(iface[key])))
+    for key in ('module', 'repo', 'source', 'commit', 'revision'):
+        if key in iface:
+            lines.append('  %s: %s,' % (json.dumps(key), json.dumps(iface[key])))
     lines.append('  "connectors": [')
     for ci, c in enumerate(iface['connectors']):
         lines.append('    {"ref": %s, "pins": [' % json.dumps(c['ref']))
@@ -345,27 +403,34 @@ def dump(iface):
     return '\n'.join(lines) + '\n'
 
 
-def load(name):
-    with open(iface_path(name)) as fh:
-        return json.load(fh)
+def write(project, name, repo=None):
+    iface = extract(project, name, repo)
+    if iface['commit'].endswith('-dirty'):
+        print('warning: %s has uncommitted changes' % iface['source'], file=sys.stderr)
+    os.makedirs(project.iface_dir, exist_ok=True)
+    path = project.iface_path(name)
+    with open(path, 'w') as fh:
+        fh.write(dump(iface))
+    n = sum(len(c['pins']) for c in iface['connectors'])
+    print('wrote %s: %d connectors, %d pins, from %s'
+          % (project.rel(path), len(iface['connectors']), n, iface['commit']))
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('module')
-    ap.add_argument('repo', help="path to the module's own repo checkout")
+    ap.add_argument('-C', dest='dir', default='.', help='the directory holding modules.toml')
+    ap.add_argument('--all', action='store_true', help='every module with a path')
+    ap.add_argument('module', nargs='?')
+    ap.add_argument('repo', nargs='?', help="the module's source checkout, if not its path")
     args = ap.parse_args()
-    iface = extract(args.module, args.repo)
-    if iface['commit'].endswith('-dirty'):
-        print('warning: %s has uncommitted changes' % iface['source'], file=sys.stderr)
-    os.makedirs(IFACE_DIR, exist_ok=True)
-    with open(iface_path(args.module), 'w') as fh:
-        fh.write(dump(iface))
-    n = sum(len(c['pins']) for c in iface['connectors'])
-    print('wrote %s: %d connectors, %d pins, from %s'
-          % (os.path.relpath(iface_path(args.module), ROOT), len(iface['connectors']), n,
-             iface['commit']))
+    project = Project(args.dir)
+    if args.all == bool(args.module):
+        ap.error('give a MODULE or --all')
+    names = [n for n, m in project.modules.items() if 'path' in m or 'stock' in m] \
+        if args.all else [args.module]
+    for name in names:
+        write(project, name, args.repo)
 
 
 if __name__ == '__main__':
